@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../helpers/providers/auth_provider.dart';
+import '../../helpers/providers/auth_provider.dart';
 
 class HomeScreen extends StatelessWidget {
   final AuthProvider _authProvider = AuthProvider();
