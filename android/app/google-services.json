@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "848777551907",
+    "project_id": "minotesfreppi",
+    "storage_bucket": "minotesfreppi.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:848777551907:android:5047ea7070863979f61196",
+        "android_client_info": {
+          "package_name": "com.example.mi_notes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBP9fXGg2gP6M0ra-sCrjneC74fobvHaKQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
