@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../helpers/providers/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -20,9 +22,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (user != null) {
       Navigator.pushReplacementNamed(context, '/home');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al iniciar sesión')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error al iniciar sesión')));
     }
   }
 
@@ -35,9 +37,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (user != null) {
       Navigator.pushReplacementNamed(context, '/home');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al registrar usuario')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error al registrar usuario')));
     }
   }
 
@@ -51,8 +53,10 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Autenticación',
-                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+              Text(
+                'Autenticación',
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+              ),
               SizedBox(height: 30),
               TextField(
                 controller: emailController,
@@ -71,14 +75,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               SizedBox(height: 25),
-              ElevatedButton(
-                onPressed: _login,
-                child: Text('Iniciar sesión'),
-              ),
-              TextButton(
-                onPressed: _register,
-                child: Text('Registrarme'),
-              ),
+              ElevatedButton(onPressed: _login, child: Text('Iniciar sesión')),
+              TextButton(onPressed: _register, child: Text('Registrarme')),
             ],
           ),
         ),
