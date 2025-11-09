@@ -11,7 +11,10 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final nameController = TextEditingController();
+
   final AuthProvider _authProvider = AuthProvider();
+  bool showRegisterFields = false;
 
   void _login() async {
     final user = await _authProvider.login(
@@ -24,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error al iniciar sesión')));
+      ).showSnackBar(const SnackBar(content: Text('Error al iniciar sesión')));
     }
   }
 
@@ -32,14 +35,15 @@ class _LoginScreenState extends State<LoginScreen> {
     final user = await _authProvider.signUp(
       emailController.text.trim(),
       passwordController.text.trim(),
+      nameController.text.trim(), // 🔹 Pasamos el nombre
     );
 
     if (user != null) {
       Navigator.pushReplacementNamed(context, '/home');
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error al registrar usuario')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al registrar usuario')),
+      );
     }
   }
 
@@ -48,35 +52,73 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: Colors.deepPurple.shade50,
       body: Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(30),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Autenticación',
-                style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                showRegisterFields ? 'Regístrate' : 'Bienvenido',
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
+
+              if (showRegisterFields)
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nombre',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              if (showRegisterFields) const SizedBox(height: 20),
+
               TextField(
                 controller: emailController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Correo',
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
+
               TextField(
                 controller: passwordController,
                 obscureText: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Contraseña',
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 25),
-              ElevatedButton(onPressed: _login, child: Text('Iniciar sesión')),
-              TextButton(onPressed: _register, child: Text('Registrarme')),
+              const SizedBox(height: 25),
+
+              if (!showRegisterFields)
+                ElevatedButton(
+                  onPressed: _login,
+                  child: const Text('Iniciar sesión'),
+                ),
+
+              if (showRegisterFields)
+                ElevatedButton(
+                  onPressed: _register,
+                  child: const Text('Registrar cuenta'),
+                ),
+
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    showRegisterFields = !showRegisterFields;
+                  });
+                },
+                child: Text(
+                  showRegisterFields
+                      ? '¿Ya tienes cuenta? Inicia sesión'
+                      : '¿No tienes cuenta? Regístrate',
+                ),
+              ),
             ],
           ),
         ),

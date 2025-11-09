@@ -4,6 +4,8 @@ import '../../helpers/providers/auth_provider.dart';
 class HomeScreen extends StatelessWidget {
   final AuthProvider _authProvider = AuthProvider();
 
+  HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,9 +21,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Center(
-        child: Text('Bienvenido 🎉'),
-      ),
+      body: Center(child: Text('Bienvenido 🎉')),
     );
   }
 }
