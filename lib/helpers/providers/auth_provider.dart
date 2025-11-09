@@ -13,7 +13,7 @@ class AuthProvider {
     String? displayName,
   ) async {
     try {
-      // 🔹 Crear usuario en Firebase Authentication
+      // Crear usuario en Firebase Auth
       UserCredential result = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -28,7 +28,7 @@ class AuthProvider {
           displayName: displayName,
         );
 
-        // 🔹 Guardar el usuario en Firestore
+        // Guardar usuario en firestore
         await _firestore
             .collection('users')
             .doc(user.uid)
@@ -52,13 +52,13 @@ class AuthProvider {
 
       final user = result.user;
       if (user != null) {
-        // 🔹 Obtener los datos del usuario desde Firestore
+        // Obtener datos adicionales de Firestore
         final doc = await _firestore.collection('users').doc(user.uid).get();
 
         if (doc.exists) {
           return UserModel.fromMap(doc.data()!);
         } else {
-          // Si no existe en Firestore, crearlo mínimo con email
+          // Si no existe en Firestore, crear un UserModel básico
           final userModel = UserModel(uid: user.uid, email: user.email ?? '');
           await _firestore
               .collection('users')
