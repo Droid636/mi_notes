@@ -13,7 +13,6 @@ class EventFormScreen extends StatefulWidget {
 }
 
 class _EventFormScreenState extends State<EventFormScreen> {
-  final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late TextEditingController _descController;
   DateTime? _startDate;
@@ -42,84 +41,80 @@ class _EventFormScreenState extends State<EventFormScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Título'),
-                validator: (val) =>
-                    val == null || val.isEmpty ? 'Ingrese un título' : null,
-              ),
-              TextFormField(
-                controller: _descController,
-                decoration: const InputDecoration(labelText: 'Descripción'),
-                validator: (val) => val == null || val.isEmpty
-                    ? 'Ingrese una descripción'
-                    : null,
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      _startDate == null
-                          ? 'Fecha de inicio'
-                          : 'Inicio: ${_startDate!.toLocal()}'.split(' ')[0],
-                    ),
+        child: Column(
+          children: [
+            TextField(
+              controller: _titleController,
+              decoration: const InputDecoration(labelText: 'Título'),
+            ),
+            TextField(
+              controller: _descController,
+              decoration: const InputDecoration(labelText: 'Descripción'),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _startDate == null
+                        ? 'Fecha de inicio'
+                        : 'Inicio: ${_startDate!.toLocal()}'.split(' ')[0],
                   ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final date = await showDatePicker(
-                        context: context,
-                        initialDate: _startDate ?? DateTime.now(),
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2100),
-                      );
-                      if (date != null) setState(() => _startDate = date);
-                    },
-                    child: const Text('Seleccionar'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      _endDate == null
-                          ? 'Fecha de fin'
-                          : 'Fin: ${_endDate!.toLocal()}'.split(' ')[0],
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final date = await showDatePicker(
-                        context: context,
-                        initialDate: _endDate ?? DateTime.now(),
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2100),
-                      );
-                      if (date != null) setState(() => _endDate = date);
-                    },
-                    child: const Text('Seleccionar'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  if (!_formKey.currentState!.validate()) return;
-                  if (_startDate == null || _endDate == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Seleccione fechas válidas'),
-                      ),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: _startDate ?? DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
                     );
-                    return;
-                  }
+                    if (date != null) setState(() => _startDate = date);
+                  },
+                  child: const Text('Seleccionar'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _endDate == null
+                        ? 'Fecha de fin'
+                        : 'Fin: ${_endDate!.toLocal()}'.split(' ')[0],
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: _endDate ?? DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                    if (date != null) setState(() => _endDate = date);
+                  },
+                  child: const Text('Seleccionar'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                if (_titleController.text.isEmpty ||
+                    _descController.text.isEmpty ||
+                    _startDate == null ||
+                    _endDate == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Complete todos los campos y fechas'),
+                    ),
+                  );
+                  return;
+                }
 
+                try {
                   if (widget.event == null) {
                     await dataProvider.addEvent(
                       uid,
@@ -138,12 +133,22 @@ class _EventFormScreenState extends State<EventFormScreen> {
                     await dataProvider.updateEvent(updatedEvent);
                   }
 
-                  Navigator.pop(context);
-                },
-                child: const Text('Guardar'),
-              ),
-            ],
-          ),
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Evento guardado correctamente'),
+                    ),
+                  );
+
+                  Navigator.pop(context, true);
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error al guardar: $e')),
+                  );
+                }
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
         ),
       ),
     );

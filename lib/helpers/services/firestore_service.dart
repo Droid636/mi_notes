@@ -10,15 +10,27 @@ class FirestoreService {
   // 🔹 NOTAS
   // ===============================
   Future<void> addNote(NoteModel note) async {
-    await _db.collection('notes').doc(note.id).set(note.toMap());
+    try {
+      await _db.collection('notes').doc(note.id).set(note.toMap());
+    } catch (e) {
+      throw Exception('Error al agregar nota: $e');
+    }
   }
 
   Future<void> updateNote(NoteModel note) async {
-    await _db.collection('notes').doc(note.id).update(note.toMap());
+    try {
+      await _db.collection('notes').doc(note.id).update(note.toMap());
+    } catch (e) {
+      throw Exception('Error al actualizar nota: $e');
+    }
   }
 
   Future<void> deleteNote(String id) async {
-    await _db.collection('notes').doc(id).delete();
+    try {
+      await _db.collection('notes').doc(id).delete();
+    } catch (e) {
+      throw Exception('Error al eliminar nota: $e');
+    }
   }
 
   Stream<List<NoteModel>> getNotesStream(String uid) {
@@ -29,7 +41,12 @@ class FirestoreService {
         .snapshots()
         .map(
           (snapshot) => snapshot.docs
-              .map((doc) => NoteModel.fromMap(doc.data()))
+              .map(
+                (doc) => NoteModel.fromMap({
+                  ...doc.data(),
+                  'id': doc.id, // agregamos el id
+                }),
+              )
               .toList(),
         );
   }
@@ -38,15 +55,27 @@ class FirestoreService {
   // 🔹 EVENTOS
   // ===============================
   Future<void> addEvent(EventModel event) async {
-    await _db.collection('events').doc(event.id).set(event.toMap());
+    try {
+      await _db.collection('events').doc(event.id).set(event.toMap());
+    } catch (e) {
+      throw Exception('Error al agregar evento: $e');
+    }
   }
 
   Future<void> updateEvent(EventModel event) async {
-    await _db.collection('events').doc(event.id).update(event.toMap());
+    try {
+      await _db.collection('events').doc(event.id).update(event.toMap());
+    } catch (e) {
+      throw Exception('Error al actualizar evento: $e');
+    }
   }
 
   Future<void> deleteEvent(String id) async {
-    await _db.collection('events').doc(id).delete();
+    try {
+      await _db.collection('events').doc(id).delete();
+    } catch (e) {
+      throw Exception('Error al eliminar evento: $e');
+    }
   }
 
   Stream<List<EventModel>> getEventsStream(String uid) {
@@ -57,7 +86,7 @@ class FirestoreService {
         .snapshots()
         .map(
           (snapshot) => snapshot.docs
-              .map((doc) => EventModel.fromMap(doc.data()))
+              .map((doc) => EventModel.fromMap({...doc.data(), 'id': doc.id}))
               .toList(),
         );
   }
@@ -66,15 +95,30 @@ class FirestoreService {
   // 🔹 RECORDATORIOS
   // ===============================
   Future<void> addReminder(ReminderModel reminder) async {
-    await _db.collection('reminders').doc(reminder.id).set(reminder.toMap());
+    try {
+      await _db.collection('reminders').doc(reminder.id).set(reminder.toMap());
+    } catch (e) {
+      throw Exception('Error al agregar recordatorio: $e');
+    }
   }
 
   Future<void> updateReminder(ReminderModel reminder) async {
-    await _db.collection('reminders').doc(reminder.id).update(reminder.toMap());
+    try {
+      await _db
+          .collection('reminders')
+          .doc(reminder.id)
+          .update(reminder.toMap());
+    } catch (e) {
+      throw Exception('Error al actualizar recordatorio: $e');
+    }
   }
 
   Future<void> deleteReminder(String id) async {
-    await _db.collection('reminders').doc(id).delete();
+    try {
+      await _db.collection('reminders').doc(id).delete();
+    } catch (e) {
+      throw Exception('Error al eliminar recordatorio: $e');
+    }
   }
 
   Stream<List<ReminderModel>> getRemindersStream(String uid) {
@@ -85,7 +129,9 @@ class FirestoreService {
         .snapshots()
         .map(
           (snapshot) => snapshot.docs
-              .map((doc) => ReminderModel.fromMap(doc.data()))
+              .map(
+                (doc) => ReminderModel.fromMap({...doc.data(), 'id': doc.id}),
+              )
               .toList(),
         );
   }

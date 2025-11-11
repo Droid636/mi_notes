@@ -13,7 +13,6 @@ class ReminderFormScreen extends StatefulWidget {
 }
 
 class _ReminderFormScreenState extends State<ReminderFormScreen> {
-  final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   DateTime? _scheduledAt;
 
@@ -42,71 +41,67 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Título'),
-                validator: (val) =>
-                    val == null || val.isEmpty ? 'Ingrese un título' : null,
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      _scheduledAt == null
-                          ? 'Seleccionar fecha y hora'
-                          : 'Fecha: ${_scheduledAt!.toLocal()}',
-                    ),
+        child: Column(
+          children: [
+            TextField(
+              controller: _titleController,
+              decoration: const InputDecoration(labelText: 'Título'),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _scheduledAt == null
+                        ? 'Seleccionar fecha y hora'
+                        : 'Fecha: ${_scheduledAt!.toLocal()}',
                   ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final date = await showDatePicker(
-                        context: context,
-                        initialDate: _scheduledAt ?? DateTime.now(),
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2100),
-                      );
-                      if (date != null) {
-                        final time = await showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay.fromDateTime(
-                            _scheduledAt ?? DateTime.now(),
-                          ),
-                        );
-                        if (time != null) {
-                          setState(() {
-                            _scheduledAt = DateTime(
-                              date.year,
-                              date.month,
-                              date.day,
-                              time.hour,
-                              time.minute,
-                            );
-                          });
-                        }
-                      }
-                    },
-                    child: const Text('Seleccionar'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  if (!_formKey.currentState!.validate()) return;
-                  if (_scheduledAt == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Seleccione una fecha y hora'),
-                      ),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: _scheduledAt ?? DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
                     );
-                    return;
-                  }
+                    if (date != null) {
+                      final time = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.fromDateTime(
+                          _scheduledAt ?? DateTime.now(),
+                        ),
+                      );
+                      if (time != null) {
+                        setState(() {
+                          _scheduledAt = DateTime(
+                            date.year,
+                            date.month,
+                            date.day,
+                            time.hour,
+                            time.minute,
+                          );
+                        });
+                      }
+                    }
+                  },
+                  child: const Text('Seleccionar'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                if (_titleController.text.isEmpty || _scheduledAt == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Ingrese un título y seleccione fecha'),
+                    ),
+                  );
+                  return;
+                }
 
+                try {
                   if (widget.reminder == null) {
                     await dataProvider.addReminder(
                       uid,
@@ -122,12 +117,25 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
                     await dataProvider.updateReminder(updatedReminder);
                   }
 
-                  Navigator.pop(context);
-                },
-                child: const Text('Guardar'),
-              ),
-            ],
-          ),
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Recordatorio guardado correctamente'),
+                    ),
+                  );
+
+                  Navigator.pop(
+                    context,
+                    true,
+                  ); // Devuelve true para refrescar la lista
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error al guardar: $e')),
+                  );
+                }
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
         ),
       ),
     );

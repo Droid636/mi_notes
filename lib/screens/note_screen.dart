@@ -59,21 +59,35 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                 onPressed: () async {
                   if (!_formKey.currentState!.validate()) return;
 
-                  if (widget.note == null) {
-                    await dataProvider.addNote(
-                      uid,
-                      _titleController.text,
-                      _contentController.text,
-                    );
-                  } else {
-                    final updatedNote = widget.note!.copyWith(
-                      title: _titleController.text,
-                      content: _contentController.text,
-                    );
-                    await dataProvider.updateNote(updatedNote);
-                  }
+                  try {
+                    if (widget.note == null) {
+                      await dataProvider.addNote(
+                        uid,
+                        _titleController.text,
+                        _contentController.text,
+                      );
+                    } else {
+                      final updatedNote = widget.note!.copyWith(
+                        title: _titleController.text,
+                        content: _contentController.text,
+                      );
+                      await dataProvider.updateNote(updatedNote);
+                    }
 
-                  Navigator.pop(context);
+                    // Mostrar SnackBar de confirmación
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Nota guardada correctamente'),
+                      ),
+                    );
+
+                    // Regresar a la pantalla anterior indicando que hubo cambios
+                    Navigator.pop(context, true);
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error al guardar: $e')),
+                    );
+                  }
                 },
                 child: const Text('Guardar'),
               ),
