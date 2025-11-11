@@ -1,52 +1,151 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../helpers/providers/data_provider.dart';
-import '../../helpers/providers/auth_provider.dart';
-import '../../models/event_model.dart';
+import 'package:mi_notes/helpers/providers/data_provider.dart';
+import 'package:mi_notes/helpers/providers/auth_provider.dart';
+import 'package:mi_notes/models/event_model.dart';
 
-class EventScreen extends StatelessWidget {
-  const EventScreen({super.key});
+class EventFormScreen extends StatefulWidget {
+  final EventModel? event;
+  const EventFormScreen({super.key, this.event});
+
+  @override
+  State<EventFormScreen> createState() => _EventFormScreenState();
+}
+
+class _EventFormScreenState extends State<EventFormScreen> {
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _titleController;
+  late TextEditingController _descController;
+  DateTime? _startDate;
+  DateTime? _endDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.event?.title ?? '');
+    _descController = TextEditingController(
+      text: widget.event?.description ?? '',
+    );
+    _startDate = widget.event?.startDate;
+    _endDate = widget.event?.endDate;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final dataProvider = Provider.of<DataProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final uid = authProvider.currentUser!.uid;
 
-    return StreamBuilder<List<EventModel>>(
-      stream: dataProvider.getEvents(
-        authProvider.currentUser!.uid,
-      ), // ✅ CORREGIDO
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        final events = snapshot.data!;
-        if (events.isEmpty) {
-          return const Center(child: Text('No hay eventos aún'));
-        }
-
-        return ListView.builder(
-          itemCount: events.length,
-          itemBuilder: (context, index) {
-            final event = events[index];
-            return Card(
-              margin: const EdgeInsets.all(8),
-              child: ListTile(
-                title: Text(event.title),
-                subtitle: Text(event.description),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => dataProvider.deleteEvent(event.id),
-                ),
-                onTap: () {
-                  Navigator.pushNamed(context, '/eventForm', arguments: event);
-                },
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.event == null ? 'Nuevo Evento' : 'Editar Evento'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _titleController,
+                decoration: const InputDecoration(labelText: 'Título'),
+                validator: (val) =>
+                    val == null || val.isEmpty ? 'Ingrese un título' : null,
               ),
-            );
-          },
-        );
-      },
+              TextFormField(
+                controller: _descController,
+                decoration: const InputDecoration(labelText: 'Descripción'),
+                validator: (val) => val == null || val.isEmpty
+                    ? 'Ingrese una descripción'
+                    : null,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _startDate == null
+                          ? 'Fecha de inicio'
+                          : 'Inicio: ${_startDate!.toLocal()}'.split(' ')[0],
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: _startDate ?? DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                      );
+                      if (date != null) setState(() => _startDate = date);
+                    },
+                    child: const Text('Seleccionar'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _endDate == null
+                          ? 'Fecha de fin'
+                          : 'Fin: ${_endDate!.toLocal()}'.split(' ')[0],
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: _endDate ?? DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                      );
+                      if (date != null) setState(() => _endDate = date);
+                    },
+                    child: const Text('Seleccionar'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  if (!_formKey.currentState!.validate()) return;
+                  if (_startDate == null || _endDate == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Seleccione fechas válidas'),
+                      ),
+                    );
+                    return;
+                  }
+
+                  if (widget.event == null) {
+                    await dataProvider.addEvent(
+                      uid,
+                      _titleController.text,
+                      _descController.text,
+                      _startDate!,
+                      _endDate!,
+                    );
+                  } else {
+                    final updatedEvent = widget.event!.copyWith(
+                      title: _titleController.text,
+                      description: _descController.text,
+                      startDate: _startDate,
+                      endDate: _endDate,
+                    );
+                    await dataProvider.updateEvent(updatedEvent);
+                  }
+
+                  Navigator.pop(context);
+                },
+                child: const Text('Guardar'),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

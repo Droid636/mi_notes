@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../helpers/providers/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -12,12 +13,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final nameController = TextEditingController();
-
-  final AuthProvider _authProvider = AuthProvider();
   bool showRegisterFields = false;
 
   void _login() async {
-    final user = await _authProvider.login(
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = await authProvider.login(
       emailController.text.trim(),
       passwordController.text.trim(),
     );
@@ -32,10 +32,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _register() async {
-    final user = await _authProvider.signUp(
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = await authProvider.signUp(
       emailController.text.trim(),
       passwordController.text.trim(),
-      nameController.text.trim(), // 🔹 Pasamos el nombre
+      nameController.text.trim(),
     );
 
     if (user != null) {

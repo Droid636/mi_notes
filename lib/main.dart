@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+
+// Providers
 import 'helpers/providers/auth_provider.dart';
 import 'helpers/providers/data_provider.dart';
+
+// Firebase
 import 'firebase_options.dart';
+
+// Pantallas principales
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
+
+// Formularios
+import 'screens/note_screen.dart';
+import 'screens/event_screen.dart';
+import 'screens/reminder_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,7 +25,10 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        // ✅ AuthProvider SIN ChangeNotifier (no extiende de él)
         Provider(create: (_) => AuthProvider()),
+
+        // ✅ DataProvider SÍ extiende de ChangeNotifier
         ChangeNotifierProvider(create: (_) => DataProvider()),
       ],
       child: const MyApp(),
@@ -35,6 +49,9 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginScreen(),
         '/home': (context) => const HomeScreen(),
+        '/noteForm': (context) => const NoteFormScreen(),
+        '/eventForm': (context) => const EventFormScreen(),
+        '/reminderForm': (context) => const ReminderFormScreen(),
       },
     );
   }

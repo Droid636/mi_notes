@@ -1,50 +1,135 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../helpers/providers/data_provider.dart';
-import '../../helpers/providers/auth_provider.dart';
-import '../../models/reminder_model.dart';
+import 'package:mi_notes/helpers/providers/data_provider.dart';
+import 'package:mi_notes/helpers/providers/auth_provider.dart';
+import 'package:mi_notes/models/reminder_model.dart';
 
-class ReminderScreen extends StatelessWidget {
-  const ReminderScreen({super.key});
+class ReminderFormScreen extends StatefulWidget {
+  final ReminderModel? reminder;
+  const ReminderFormScreen({super.key, this.reminder});
+
+  @override
+  State<ReminderFormScreen> createState() => _ReminderFormScreenState();
+}
+
+class _ReminderFormScreenState extends State<ReminderFormScreen> {
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _titleController;
+  DateTime? _scheduledAt;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(
+      text: widget.reminder?.title ?? 'Recordatorio',
+    );
+    _scheduledAt = widget.reminder?.scheduledAt;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final dataProvider = Provider.of<DataProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final uid = authProvider.currentUser!.uid;
 
-    return StreamBuilder<List<ReminderModel>>(
-      stream: dataProvider.getReminders(authProvider.currentUser!.uid),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        final reminders = snapshot.data!;
-        if (reminders.isEmpty) {
-          return const Center(child: Text('No hay recordatorios aún'));
-        }
-
-        return ListView.builder(
-          itemCount: reminders.length,
-          itemBuilder: (context, index) {
-            final reminder = reminders[index];
-            return Card(
-              margin: const EdgeInsets.all(8),
-              child: ListTile(
-                // ✅ ya no da error: no existe "title" en ReminderModel
-                title: const Text('Recordatorio'),
-                subtitle: Text(
-                  'Fecha: ${reminder.scheduledAt.toLocal().toString()}',
-                ),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => dataProvider.deleteReminder(reminder.id),
-                ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          widget.reminder == null
+              ? 'Nuevo Recordatorio'
+              : 'Editar Recordatorio',
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _titleController,
+                decoration: const InputDecoration(labelText: 'Título'),
+                validator: (val) =>
+                    val == null || val.isEmpty ? 'Ingrese un título' : null,
               ),
-            );
-          },
-        );
-      },
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _scheduledAt == null
+                          ? 'Seleccionar fecha y hora'
+                          : 'Fecha: ${_scheduledAt!.toLocal()}',
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: _scheduledAt ?? DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                      );
+                      if (date != null) {
+                        final time = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.fromDateTime(
+                            _scheduledAt ?? DateTime.now(),
+                          ),
+                        );
+                        if (time != null) {
+                          setState(() {
+                            _scheduledAt = DateTime(
+                              date.year,
+                              date.month,
+                              date.day,
+                              time.hour,
+                              time.minute,
+                            );
+                          });
+                        }
+                      }
+                    },
+                    child: const Text('Seleccionar'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  if (!_formKey.currentState!.validate()) return;
+                  if (_scheduledAt == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Seleccione una fecha y hora'),
+                      ),
+                    );
+                    return;
+                  }
+
+                  if (widget.reminder == null) {
+                    await dataProvider.addReminder(
+                      uid,
+                      _scheduledAt!,
+                      null,
+                      null,
+                    );
+                  } else {
+                    final updatedReminder = widget.reminder!.copyWith(
+                      title: _titleController.text,
+                      scheduledAt: _scheduledAt,
+                    );
+                    await dataProvider.updateReminder(updatedReminder);
+                  }
+
+                  Navigator.pop(context);
+                },
+                child: const Text('Guardar'),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

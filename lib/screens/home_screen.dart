@@ -14,10 +14,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-  final List<Widget> _screens = const [
-    NoteScreen(),
-    EventScreen(),
-    ReminderScreen(),
+
+  // ❌ Se quitó const
+  final List<Widget> _screens = [
+    NoteFormScreen(),
+    EventFormScreen(),
+    ReminderFormScreen(),
   ];
 
   @override
@@ -46,9 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() => _selectedIndex = index);
-        },
+        onTap: (index) => setState(() => _selectedIndex = index),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.note), label: 'Notas'),
           BottomNavigationBarItem(icon: Icon(Icons.event), label: 'Eventos'),
