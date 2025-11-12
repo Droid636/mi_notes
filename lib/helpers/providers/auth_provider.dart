@@ -6,7 +6,7 @@ class AuthProvider {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // 🔹 Getter para obtener el usuario autenticado actual
+  // Obtener el usuario actual
   User? get currentUser => _auth.currentUser;
 
   Future<UserModel?> signUp(
@@ -40,6 +40,7 @@ class AuthProvider {
     return null;
   }
 
+  // Iniciar sesión
   Future<UserModel?> login(String email, String password) async {
     try {
       UserCredential result = await _auth.signInWithEmailAndPassword(

@@ -9,9 +9,7 @@ class DataProvider with ChangeNotifier {
   final FirestoreService _firestore = FirestoreService();
   final Uuid _uuid = const Uuid();
 
-  // ===============================
-  // 🔹 NOTAS
-  // ===============================
+  // Notas
   Future<void> addNote(String uid, String title, String content) async {
     final note = NoteModel(
       id: _uuid.v4(),
@@ -24,6 +22,7 @@ class DataProvider with ChangeNotifier {
     await _firestore.addNote(note);
   }
 
+  // Post , Update , Delete , Get Notes
   Future<void> updateNote(NoteModel note) async {
     await _firestore.updateNote(note);
   }
@@ -36,9 +35,7 @@ class DataProvider with ChangeNotifier {
     return _firestore.getNotesStream(uid);
   }
 
-  // ===============================
-  // 🔹 EVENTOS
-  // ===============================
+  // Eventos
   Future<void> addEvent(
     String uid,
     String title,
@@ -57,6 +54,7 @@ class DataProvider with ChangeNotifier {
     await _firestore.addEvent(event);
   }
 
+  // Post , Update , Delete , Get Events
   Future<void> updateEvent(EventModel event) async {
     await _firestore.updateEvent(event);
   }
@@ -69,9 +67,8 @@ class DataProvider with ChangeNotifier {
     return _firestore.getEventsStream(uid);
   }
 
-  // ===============================
-  // 🔹 RECORDATORIOS
-  // ===============================
+  // Recordatorios
+  // Post , Update , Delete , Get Reminders
 
   Future<void> addReminder(ReminderModel reminder) async {
     await _firestore.addReminder(reminder);

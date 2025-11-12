@@ -6,9 +6,6 @@ import 'package:mi_notes/models/reminder_model.dart';
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // ===============================
-  // 🔹 NOTAS
-  // ===============================
   Future<void> addNote(NoteModel note) async {
     try {
       await _db.collection('notes').doc(note.id).set(note.toMap());
@@ -51,9 +48,6 @@ class FirestoreService {
         );
   }
 
-  // ===============================
-  // 🔹 EVENTOS
-  // ===============================
   Future<void> addEvent(EventModel event) async {
     try {
       await _db.collection('events').doc(event.id).set(event.toMap());
@@ -91,9 +85,6 @@ class FirestoreService {
         );
   }
 
-  // ===============================
-  // 🔹 RECORDATORIOS
-  // ===============================
   Future<void> addReminder(ReminderModel reminder) async {
     try {
       await _db.collection('reminders').doc(reminder.id).set(reminder.toMap());
