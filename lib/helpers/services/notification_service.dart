@@ -23,10 +23,10 @@ class NotificationService {
     // iOS initialization settings
     const DarwinInitializationSettings iosInitSettings =
         DarwinInitializationSettings(
-      requestSoundPermission: true,
-      requestBadgePermission: true,
-      requestAlertPermission: true,
-    );
+          requestSoundPermission: true,
+          requestBadgePermission: true,
+          requestAlertPermission: true,
+        );
 
     // Combined initialization settings
     final InitializationSettings initSettings = InitializationSettings(
@@ -74,13 +74,13 @@ class NotificationService {
   }) async {
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
-      'mi_notes_channel',
-      'Mi Notes Notifications',
-      channelDescription: 'Notifications for Mi Notes app',
-      importance: Importance.high,
-      priority: Priority.high,
-      showWhen: true,
-    );
+          'mi_notes_channel',
+          'Mi Notes Notifications',
+          channelDescription: 'Notifications for Mi Notes app',
+          importance: Importance.high,
+          priority: Priority.high,
+          showWhen: true,
+        );
 
     const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
       presentAlert: true,
@@ -111,14 +111,14 @@ class NotificationService {
   }) async {
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
-      'mi_notes_scheduled',
-      'Scheduled Notifications',
-      channelDescription: 'Scheduled notifications for reminders',
-      importance: Importance.high,
-      priority: Priority.high,
-      enableVibration: true,
-      enableLights: true,
-    );
+          'mi_notes_scheduled',
+          'Scheduled Notifications',
+          channelDescription: 'Scheduled notifications for reminders',
+          importance: Importance.high,
+          priority: Priority.high,
+          enableVibration: true,
+          enableLights: true,
+        );
 
     const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
       presentAlert: true,
@@ -136,10 +136,7 @@ class NotificationService {
         DateTime.now().millisecond,
         title,
         body,
-        tz.TZDateTime.from(
-          scheduledDate,
-          tz.local,
-        ),
+        tz.TZDateTime.from(scheduledDate, tz.local),
         notificationDetails,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,

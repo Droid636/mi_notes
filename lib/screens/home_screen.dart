@@ -130,9 +130,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(builder: (_) => NoteFormScreen(note: note)),
               ),
               onActionSelected: (value) async {
-                final notificationProvider = 
-                    Provider.of<NotificationProvider>(context, listen: false);
-                    
+                final notificationProvider = Provider.of<NotificationProvider>(
+                  context,
+                  listen: false,
+                );
+
                 if (value == 'edit') {
                   Navigator.push(
                     context,
@@ -147,7 +149,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     builder: (BuildContext context) {
                       return AlertDialog(
                         title: const Text('Eliminar nota'),
-                        content: const Text('¿Está seguro de que desea eliminar esta nota?'),
+                        content: const Text(
+                          '¿Está seguro de que desea eliminar esta nota?',
+                        ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context, false),
@@ -155,7 +159,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           TextButton(
                             onPressed: () => Navigator.pop(context, true),
-                            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+                            child: const Text(
+                              'Eliminar',
+                              style: TextStyle(color: Colors.red),
+                            ),
                           ),
                         ],
                       );
@@ -164,14 +171,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   if (confirmed ?? false) {
                     await dataProvider.deleteNote(note.id);
-                    
+
                     // Mostrar notificación de eliminación
                     await notificationProvider.showInstantNotification(
                       id: DateTime.now().millisecond,
                       title: '🗑️ Nota eliminada',
                       body: 'Se eliminó "${note.title}"',
                     );
-                    
+
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -212,9 +219,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               onActionSelected: (value) async {
-                final notificationProvider = 
-                    Provider.of<NotificationProvider>(context, listen: false);
-                    
+                final notificationProvider = Provider.of<NotificationProvider>(
+                  context,
+                  listen: false,
+                );
+
                 if (value == 'edit') {
                   Navigator.push(
                     context,
@@ -229,7 +238,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     builder: (BuildContext context) {
                       return AlertDialog(
                         title: const Text('Eliminar evento'),
-                        content: const Text('¿Está seguro de que desea eliminar este evento?'),
+                        content: const Text(
+                          '¿Está seguro de que desea eliminar este evento?',
+                        ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context, false),
@@ -237,7 +248,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           TextButton(
                             onPressed: () => Navigator.pop(context, true),
-                            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+                            child: const Text(
+                              'Eliminar',
+                              style: TextStyle(color: Colors.red),
+                            ),
                           ),
                         ],
                       );
@@ -246,14 +260,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   if (confirmed ?? false) {
                     await dataProvider.deleteEvent(event.id);
-                    
+
                     // Mostrar notificación de eliminación
                     await notificationProvider.showInstantNotification(
                       id: DateTime.now().millisecond,
                       title: '🗑️ Evento eliminado',
                       body: 'Se eliminó "${event.title}"',
                     );
-                    
+
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -291,9 +305,9 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: () {},
               trailing: PopupMenuButton<String>(
                 onSelected: (value) async {
-                  final notificationProvider = 
+                  final notificationProvider =
                       Provider.of<NotificationProvider>(context, listen: false);
-                      
+
                   if (value == 'edit') {
                     Navigator.push(
                       context,
@@ -308,7 +322,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       builder: (BuildContext context) {
                         return AlertDialog(
                           title: const Text('Eliminar recordatorio'),
-                          content: const Text('¿Está seguro de que desea eliminar este recordatorio?'),
+                          content: const Text(
+                            '¿Está seguro de que desea eliminar este recordatorio?',
+                          ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context, false),
@@ -316,7 +332,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             TextButton(
                               onPressed: () => Navigator.pop(context, true),
-                              child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+                              child: const Text(
+                                'Eliminar',
+                                style: TextStyle(color: Colors.red),
+                              ),
                             ),
                           ],
                         );
@@ -325,19 +344,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     if (confirmed ?? false) {
                       await dataProvider.deleteReminder(reminder.id);
-                      
+
                       // Cancelar la notificación programada
                       await notificationProvider.cancelNotification(
                         reminder.id.hashCode,
                       );
-                      
+
                       // Mostrar notificación de eliminación
                       await notificationProvider.showInstantNotification(
                         id: DateTime.now().millisecond,
                         title: '🗑️ Recordatorio eliminado',
                         body: 'Se eliminó "${reminder.title}"',
                       );
-                      
+
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(

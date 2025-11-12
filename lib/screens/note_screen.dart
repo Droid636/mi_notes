@@ -61,9 +61,12 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                   if (!_formKey.currentState!.validate()) return;
 
                   try {
-                    final notificationProvider = 
-                        Provider.of<NotificationProvider>(context, listen: false);
-                    
+                    final notificationProvider =
+                        Provider.of<NotificationProvider>(
+                          context,
+                          listen: false,
+                        );
+
                     if (widget.note == null) {
                       // Crear nueva nota
                       await dataProvider.addNote(
@@ -75,7 +78,8 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                       await notificationProvider.showInstantNotification(
                         id: DateTime.now().millisecond,
                         title: '✅ Nota guardada',
-                        body: '${_titleController.text} se guardó correctamente',
+                        body:
+                            '${_titleController.text} se guardó correctamente',
                       );
                     } else {
                       // Editar nota existente

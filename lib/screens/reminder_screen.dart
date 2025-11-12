@@ -105,9 +105,9 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
                 }
 
                 try {
-                  final notificationProvider = 
+                  final notificationProvider =
                       Provider.of<NotificationProvider>(context, listen: false);
-                  
+
                   if (widget.reminder == null) {
                     // Crear nuevo recordatorio
                     final newReminder = ReminderModel(
@@ -119,7 +119,7 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
                       noteId: null,
                     );
                     await dataProvider.addReminder(newReminder);
-                    
+
                     // Programar notificación para la fecha/hora seleccionada
                     if (_scheduledAt!.isAfter(DateTime.now())) {
                       await notificationProvider.scheduleNotification(
@@ -130,12 +130,13 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
                         payload: newReminder.id,
                       );
                     }
-                    
+
                     // Mostrar notificación inmediata de creación
                     await notificationProvider.showInstantNotification(
                       id: DateTime.now().millisecond,
                       title: '⏰ Recordatorio creado',
-                      body: 'Se programó "${_titleController.text}" para ${_scheduledAt!.toString().split('.')[0]}',
+                      body:
+                          'Se programó "${_titleController.text}" para ${_scheduledAt!.toString().split('.')[0]}',
                     );
                   } else {
                     // Editar recordatorio existente
@@ -144,7 +145,7 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
                       scheduledAt: _scheduledAt,
                     );
                     await dataProvider.updateReminder(updatedReminder);
-                    
+
                     // Reprogramar notificación
                     await notificationProvider.cancelNotification(
                       widget.reminder!.id.hashCode,
@@ -158,12 +159,13 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
                         payload: updatedReminder.id,
                       );
                     }
-                    
+
                     // Mostrar notificación de actualización
                     await notificationProvider.showInstantNotification(
                       id: DateTime.now().millisecond,
                       title: '✏️ Recordatorio actualizado',
-                      body: 'Se actualizó para ${_scheduledAt!.toString().split('.')[0]}',
+                      body:
+                          'Se actualizó para ${_scheduledAt!.toString().split('.')[0]}',
                     );
                   }
 

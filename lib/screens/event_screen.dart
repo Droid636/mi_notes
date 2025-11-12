@@ -117,9 +117,9 @@ class _EventFormScreenState extends State<EventFormScreen> {
                 }
 
                 try {
-                  final notificationProvider = 
+                  final notificationProvider =
                       Provider.of<NotificationProvider>(context, listen: false);
-                  
+
                   if (widget.event == null) {
                     // Crear nuevo evento
                     await dataProvider.addEvent(

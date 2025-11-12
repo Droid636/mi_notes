@@ -56,7 +56,9 @@ void main() async {
         ChangeNotifierProvider(create: (_) => DataProvider()),
 
         // NotificationProvider (para notificaciones locales y push)
-        ChangeNotifierProvider<NotificationProvider>(create: (_) => notificationProvider),
+        ChangeNotifierProvider<NotificationProvider>(
+          create: (_) => notificationProvider,
+        ),
       ],
       child: const MyApp(),
     ),
@@ -71,12 +73,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Mi Notes',
       debugShowCheckedModeBanner: false,
-      
+
       // ✅ TEMAS LIGHT Y DARK CONFIGURADOS
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      
+
       initialRoute: '/login',
       routes: {
         '/login': (context) => const LoginScreen(),
