@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../helpers/providers/auth_provider.dart';
+import '../components/responsive_form.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -75,99 +76,93 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.deepPurple.shade50,
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(30),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                showRegisterFields ? 'Regístrate' : 'Bienvenido',
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 30),
+      body: ResponsiveForm(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              showRegisterFields ? 'Regístrate' : 'Bienvenido',
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
 
-              if (showRegisterFields)
-                TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nombre',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              if (showRegisterFields) const SizedBox(height: 20),
-
+            if (showRegisterFields)
               TextField(
-                controller: emailController,
+                controller: nameController,
                 decoration: const InputDecoration(
-                  labelText: 'Correo',
+                  labelText: 'Nombre',
                   border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 20),
+            if (showRegisterFields) const SizedBox(height: 12),
 
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Contraseña',
-                  border: OutlineInputBorder(),
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(
+                labelText: 'Correo',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Contraseña',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 18),
+
+            if (!showRegisterFields)
+              ElevatedButton(
+                onPressed: _login,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 12,
+                  ),
+                ),
+                child: const Text(
+                  'Iniciar sesión',
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
-              const SizedBox(height: 25),
 
-              if (!showRegisterFields)
-                ElevatedButton(
-                  onPressed: _login,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 12,
-                    ),
-                  ),
-                  child: const Text(
-                    'Iniciar sesión',
-                    style: TextStyle(color: Colors.white),
+            if (showRegisterFields)
+              ElevatedButton(
+                onPressed: _register,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 12,
                   ),
                 ),
-
-              if (showRegisterFields)
-                ElevatedButton(
-                  onPressed: _register,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 12,
-                    ),
-                  ),
-                  child: const Text(
-                    'Registrar cuenta',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-
-              const SizedBox(height: 10),
-
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    showRegisterFields = !showRegisterFields;
-                  });
-                },
-                child: Text(
-                  showRegisterFields
-                      ? '¿Ya tienes cuenta? Inicia sesión'
-                      : '¿No tienes cuenta? Regístrate',
-                  style: const TextStyle(color: Colors.deepPurple),
+                child: const Text(
+                  'Registrar cuenta',
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
-            ],
-          ),
+
+            const SizedBox(height: 10),
+
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  showRegisterFields = !showRegisterFields;
+                });
+              },
+              child: Text(
+                showRegisterFields
+                    ? '¿Ya tienes cuenta? Inicia sesión'
+                    : '¿No tienes cuenta? Regístrate',
+                style: const TextStyle(color: Colors.deepPurple),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -4,6 +4,7 @@ import 'package:mi_notes/helpers/providers/data_provider.dart';
 import 'package:mi_notes/helpers/providers/auth_provider.dart';
 import 'package:mi_notes/helpers/providers/notification_provider.dart';
 import 'package:mi_notes/models/note_model.dart';
+import '../components/responsive_form.dart';
 
 class NoteFormScreen extends StatefulWidget {
   final NoteModel? note;
@@ -37,11 +38,11 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
       appBar: AppBar(
         title: Text(widget.note == null ? 'Nueva Nota' : 'Editar Nota'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      body: ResponsiveForm(
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(
                 controller: _titleController,
@@ -49,8 +50,10 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                 validator: (val) =>
                     val == null || val.isEmpty ? 'Ingrese un título' : null,
               ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _contentController,
+                maxLines: 6,
                 decoration: const InputDecoration(labelText: 'Contenido'),
                 validator: (val) =>
                     val == null || val.isEmpty ? 'Ingrese contenido' : null,

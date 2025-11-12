@@ -5,6 +5,7 @@ import 'package:mi_notes/helpers/providers/auth_provider.dart';
 import 'package:mi_notes/helpers/providers/notification_provider.dart';
 import 'package:mi_notes/models/event_model.dart';
 import 'package:uuid/uuid.dart';
+import '../components/responsive_form.dart';
 
 class EventFormScreen extends StatefulWidget {
   final EventModel? event;
@@ -41,19 +42,20 @@ class _EventFormScreenState extends State<EventFormScreen> {
       appBar: AppBar(
         title: Text(widget.event == null ? 'Nuevo Evento' : 'Editar Evento'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      body: ResponsiveForm(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
               controller: _titleController,
               decoration: const InputDecoration(labelText: 'Título'),
             ),
+            const SizedBox(height: 10),
             TextField(
               controller: _descController,
               decoration: const InputDecoration(labelText: 'Descripción'),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
@@ -77,7 +79,7 @@ class _EventFormScreenState extends State<EventFormScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Row(
               children: [
                 Expanded(
@@ -101,7 +103,7 @@ class _EventFormScreenState extends State<EventFormScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 18),
             ElevatedButton(
               onPressed: () async {
                 if (_titleController.text.isEmpty ||

@@ -5,6 +5,7 @@ import 'package:mi_notes/helpers/providers/auth_provider.dart';
 import 'package:mi_notes/helpers/providers/notification_provider.dart';
 import 'package:mi_notes/models/reminder_model.dart';
 import 'package:uuid/uuid.dart';
+import '../components/responsive_form.dart';
 
 class ReminderFormScreen extends StatefulWidget {
   final ReminderModel? reminder;
@@ -41,15 +42,15 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
               : 'Editar Recordatorio',
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      body: ResponsiveForm(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
               controller: _titleController,
               decoration: const InputDecoration(labelText: 'Título'),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
@@ -91,7 +92,7 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 18),
             ElevatedButton(
               onPressed: () async {
                 if (_titleController.text.isEmpty || _scheduledAt == null) {
