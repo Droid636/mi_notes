@@ -28,10 +28,15 @@ class AuthProvider {
           displayName: displayName,
         );
 
+        // 🔹 Guardar datos en Firestore
         await _firestore
             .collection('users')
             .doc(user.uid)
             .set(userModel.toMap());
+
+        // 🔹 Cerrar sesión inmediatamente
+        await _auth.signOut();
+
         return userModel;
       }
     } catch (e) {
@@ -40,7 +45,7 @@ class AuthProvider {
     return null;
   }
 
-  // Iniciar sesión
+  // inicio de sesión
   Future<UserModel?> login(String email, String password) async {
     try {
       UserCredential result = await _auth.signInWithEmailAndPassword(
@@ -68,6 +73,7 @@ class AuthProvider {
     return null;
   }
 
+  // cierre de sesión
   Future<void> logout() async {
     await _auth.signOut();
   }

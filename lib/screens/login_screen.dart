@@ -25,9 +25,12 @@ class _LoginScreenState extends State<LoginScreen> {
     if (user != null) {
       Navigator.pushReplacementNamed(context, '/home');
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Error al iniciar sesión')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error al iniciar sesión'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -40,10 +43,30 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (user != null) {
-      Navigator.pushReplacementNamed(context, '/home');
+      // ✅ Mostrar notificación de éxito
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Registro exitoso. Inicia sesión para continuar.'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 3),
+        ),
+      );
+
+      // ✅ Esperar un momento y regresar automáticamente al formulario de inicio
+      await Future.delayed(const Duration(seconds: 2));
+
+      setState(() {
+        showRegisterFields = false;
+        nameController.clear();
+        emailController.clear();
+        passwordController.clear();
+      });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al registrar usuario')),
+        const SnackBar(
+          content: Text('Error al registrar usuario'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -99,14 +122,36 @@ class _LoginScreenState extends State<LoginScreen> {
               if (!showRegisterFields)
                 ElevatedButton(
                   onPressed: _login,
-                  child: const Text('Iniciar sesión'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: const Text(
+                    'Iniciar sesión',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
 
               if (showRegisterFields)
                 ElevatedButton(
                   onPressed: _register,
-                  child: const Text('Registrar cuenta'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: const Text(
+                    'Registrar cuenta',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
+
+              const SizedBox(height: 10),
 
               TextButton(
                 onPressed: () {
@@ -118,6 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   showRegisterFields
                       ? '¿Ya tienes cuenta? Inicia sesión'
                       : '¿No tienes cuenta? Regístrate',
+                  style: const TextStyle(color: Colors.deepPurple),
                 ),
               ),
             ],
