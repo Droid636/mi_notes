@@ -155,11 +155,27 @@ class _HomeScreenState extends State<HomeScreen> {
             final reminder = reminders[index];
             return ReminderTile(
               reminder: reminder,
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ReminderFormScreen(reminder: reminder),
-                ),
+              onTap: () {}, // Opcional si quieres abrir detalles
+              trailing: PopupMenuButton<String>(
+                onSelected: (value) async {
+                  if (value == 'edit') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ReminderFormScreen(reminder: reminder),
+                      ),
+                    );
+                  } else if (value == 'delete') {
+                    await dataProvider.deleteReminder(reminder.id);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Recordatorio eliminado')),
+                    );
+                  }
+                },
+                itemBuilder: (context) => const [
+                  PopupMenuItem(value: 'edit', child: Text('Editar')),
+                  PopupMenuItem(value: 'delete', child: Text('Eliminar')),
+                ],
               ),
             );
           },
