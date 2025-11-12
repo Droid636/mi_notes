@@ -4,8 +4,7 @@ import '../models/note_model.dart';
 class NoteCard extends StatelessWidget {
   final NoteModel note;
   final VoidCallback onTap;
-  final void Function(String action)?
-  onActionSelected; // 🔹 Callback para Editar/Eliminar
+  final void Function(String action)? onActionSelected;
 
   const NoteCard({
     super.key,
@@ -25,13 +24,14 @@ class NoteCard extends StatelessWidget {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (note.pinned) const Icon(Icons.push_pin),
+            if (note.pinned) const Icon(Icons.push_pin, color: Colors.orange),
             if (onActionSelected != null)
               PopupMenuButton<String>(
                 onSelected: (value) => onActionSelected!(value),
                 itemBuilder: (context) => const [
                   PopupMenuItem(value: 'edit', child: Text('Editar')),
                   PopupMenuItem(value: 'delete', child: Text('Eliminar')),
+                  PopupMenuItem(value: 'notify', child: Text('Notificar')),
                 ],
               ),
           ],

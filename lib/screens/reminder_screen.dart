@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mi_notes/helpers/providers/data_provider.dart';
 import 'package:mi_notes/helpers/providers/auth_provider.dart';
+import 'package:mi_notes/helpers/providers/notification_provider.dart';
 import 'package:mi_notes/models/reminder_model.dart';
 import 'package:uuid/uuid.dart';
 
@@ -97,13 +98,18 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Ingrese un título y seleccione fecha'),
+                      backgroundColor: Colors.red,
                     ),
                   );
                   return;
                 }
 
                 try {
+                  final notificationProvider = 
+                      Provider.of<NotificationProvider>(context, listen: false);
+                  
                   if (widget.reminder == null) {
+                    // Crear nuevo recordatorio
                     final newReminder = ReminderModel(
                       id: const Uuid().v4(),
                       uid: uid,
@@ -113,24 +119,69 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
                       noteId: null,
                     );
                     await dataProvider.addReminder(newReminder);
+                    
+                    // Programar notificación para la fecha/hora seleccionada
+                    if (_scheduledAt!.isAfter(DateTime.now())) {
+                      await notificationProvider.scheduleNotification(
+                        id: newReminder.id.hashCode,
+                        title: '🔔 Recordatorio: ${_titleController.text}',
+                        body: 'Es hora de: ${_titleController.text}',
+                        scheduledAt: _scheduledAt!,
+                        payload: newReminder.id,
+                      );
+                    }
+                    
+                    // Mostrar notificación inmediata de creación
+                    await notificationProvider.showInstantNotification(
+                      id: DateTime.now().millisecond,
+                      title: '⏰ Recordatorio creado',
+                      body: 'Se programó "${_titleController.text}" para ${_scheduledAt!.toString().split('.')[0]}',
+                    );
                   } else {
+                    // Editar recordatorio existente
                     final updatedReminder = widget.reminder!.copyWith(
                       title: _titleController.text,
                       scheduledAt: _scheduledAt,
                     );
                     await dataProvider.updateReminder(updatedReminder);
+                    
+                    // Reprogramar notificación
+                    await notificationProvider.cancelNotification(
+                      widget.reminder!.id.hashCode,
+                    );
+                    if (_scheduledAt!.isAfter(DateTime.now())) {
+                      await notificationProvider.scheduleNotification(
+                        id: updatedReminder.id.hashCode,
+                        title: '🔔 Recordatorio: ${_titleController.text}',
+                        body: 'Es hora de: ${_titleController.text}',
+                        scheduledAt: _scheduledAt!,
+                        payload: updatedReminder.id,
+                      );
+                    }
+                    
+                    // Mostrar notificación de actualización
+                    await notificationProvider.showInstantNotification(
+                      id: DateTime.now().millisecond,
+                      title: '✏️ Recordatorio actualizado',
+                      body: 'Se actualizó para ${_scheduledAt!.toString().split('.')[0]}',
+                    );
                   }
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Recordatorio guardado correctamente'),
+                      backgroundColor: Colors.green,
+                      duration: Duration(seconds: 2),
                     ),
                   );
 
                   Navigator.pop(context, true); // refresca la lista
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error al guardar: $e')),
+                    SnackBar(
+                      content: Text('Error al guardar: $e'),
+                      backgroundColor: Colors.red,
+                    ),
                   );
                 }
               },

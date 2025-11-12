@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mi_notes/helpers/providers/data_provider.dart';
 import 'package:mi_notes/helpers/providers/auth_provider.dart';
+import 'package:mi_notes/helpers/providers/notification_provider.dart';
 import 'package:mi_notes/models/event_model.dart';
 
 class EventFormScreen extends StatefulWidget {
@@ -109,13 +110,18 @@ class _EventFormScreenState extends State<EventFormScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Complete todos los campos y fechas'),
+                      backgroundColor: Colors.red,
                     ),
                   );
                   return;
                 }
 
                 try {
+                  final notificationProvider = 
+                      Provider.of<NotificationProvider>(context, listen: false);
+                  
                   if (widget.event == null) {
+                    // Crear nuevo evento
                     await dataProvider.addEvent(
                       uid,
                       _titleController.text,
@@ -123,7 +129,14 @@ class _EventFormScreenState extends State<EventFormScreen> {
                       _startDate!,
                       _endDate!,
                     );
+                    // Mostrar notificación de evento creado
+                    await notificationProvider.showInstantNotification(
+                      id: DateTime.now().millisecond,
+                      title: '📅 Evento creado',
+                      body: '${_titleController.text} fue creado exitosamente',
+                    );
                   } else {
+                    // Editar evento existente
                     final updatedEvent = widget.event!.copyWith(
                       title: _titleController.text,
                       description: _descController.text,
@@ -131,18 +144,29 @@ class _EventFormScreenState extends State<EventFormScreen> {
                       endDate: _endDate,
                     );
                     await dataProvider.updateEvent(updatedEvent);
+                    // Mostrar notificación de evento actualizado
+                    await notificationProvider.showInstantNotification(
+                      id: DateTime.now().millisecond,
+                      title: '✏️ Evento actualizado',
+                      body: '${_titleController.text} fue actualizado',
+                    );
                   }
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Evento guardado correctamente'),
+                      backgroundColor: Colors.green,
+                      duration: Duration(seconds: 2),
                     ),
                   );
 
                   Navigator.pop(context, true);
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error al guardar: $e')),
+                    SnackBar(
+                      content: Text('Error al guardar: $e'),
+                      backgroundColor: Colors.red,
+                    ),
                   );
                 }
               },

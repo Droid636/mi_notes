@@ -1,3 +1,14 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // ESTA LÍNEA DEBE SER AÑADIDA para que Gradle pueda encontrar el plugin
+        classpath("com.google.gms:google-services:4.4.2") // Usa esta versión o la más reciente.
+    }
+}
+
 allprojects {
     repositories {
         google()

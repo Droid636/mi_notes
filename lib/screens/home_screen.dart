@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../helpers/providers/auth_provider.dart';
 import '../helpers/providers/data_provider.dart';
+import '../helpers/providers/notification_provider.dart'; // ✅ Import agregado
 import '../models/note_model.dart';
 import '../models/event_model.dart';
 import '../models/reminder_model.dart';
@@ -21,6 +22,28 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    /// ✅ Inicializar notificaciones locales y push al abrir la pantalla
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final notificationProvider = Provider.of<NotificationProvider>(
+        context,
+        listen: false,
+      );
+      await notificationProvider.initNotifications();
+      await notificationProvider.requestPermissions();
+
+      // ✅ Notificación de bienvenida local (opcional)
+      await notificationProvider.showInstantNotification(
+        id: DateTime.now().millisecond,
+        title: '¡Bienvenido!',
+        body: 'Tus recordatorios están activos.',
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +130,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(builder: (_) => NoteFormScreen(note: note)),
               ),
               onActionSelected: (value) async {
+                final notificationProvider = 
+                    Provider.of<NotificationProvider>(context, listen: false);
+                    
                 if (value == 'edit') {
                   Navigator.push(
                     context,
@@ -115,10 +141,47 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 } else if (value == 'delete') {
-                  await dataProvider.deleteNote(note.id);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Nota eliminada')),
+                  // Mostrar confirmación
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Eliminar nota'),
+                        content: const Text('¿Está seguro de que desea eliminar esta nota?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('Cancelar'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+                          ),
+                        ],
+                      );
+                    },
                   );
+
+                  if (confirmed ?? false) {
+                    await dataProvider.deleteNote(note.id);
+                    
+                    // Mostrar notificación de eliminación
+                    await notificationProvider.showInstantNotification(
+                      id: DateTime.now().millisecond,
+                      title: '🗑️ Nota eliminada',
+                      body: 'Se eliminó "${note.title}"',
+                    );
+                    
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Nota eliminada'),
+                          backgroundColor: Colors.red,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    }
+                  }
                 }
               },
             );
@@ -149,6 +212,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               onActionSelected: (value) async {
+                final notificationProvider = 
+                    Provider.of<NotificationProvider>(context, listen: false);
+                    
                 if (value == 'edit') {
                   Navigator.push(
                     context,
@@ -157,10 +223,47 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 } else if (value == 'delete') {
-                  await dataProvider.deleteEvent(event.id);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Evento eliminado')),
+                  // Mostrar confirmación
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Eliminar evento'),
+                        content: const Text('¿Está seguro de que desea eliminar este evento?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('Cancelar'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+                          ),
+                        ],
+                      );
+                    },
                   );
+
+                  if (confirmed ?? false) {
+                    await dataProvider.deleteEvent(event.id);
+                    
+                    // Mostrar notificación de eliminación
+                    await notificationProvider.showInstantNotification(
+                      id: DateTime.now().millisecond,
+                      title: '🗑️ Evento eliminado',
+                      body: 'Se eliminó "${event.title}"',
+                    );
+                    
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Evento eliminado'),
+                          backgroundColor: Colors.red,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    }
+                  }
                 }
               },
             );
@@ -185,9 +288,12 @@ class _HomeScreenState extends State<HomeScreen> {
             final reminder = reminders[index];
             return ReminderTile(
               reminder: reminder,
-              onTap: () {}, // Opcional
+              onTap: () {},
               trailing: PopupMenuButton<String>(
                 onSelected: (value) async {
+                  final notificationProvider = 
+                      Provider.of<NotificationProvider>(context, listen: false);
+                      
                   if (value == 'edit') {
                     Navigator.push(
                       context,
@@ -196,10 +302,52 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     );
                   } else if (value == 'delete') {
-                    await dataProvider.deleteReminder(reminder.id);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Recordatorio eliminado')),
+                    // Mostrar confirmación
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Eliminar recordatorio'),
+                          content: const Text('¿Está seguro de que desea eliminar este recordatorio?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text('Cancelar'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+                            ),
+                          ],
+                        );
+                      },
                     );
+
+                    if (confirmed ?? false) {
+                      await dataProvider.deleteReminder(reminder.id);
+                      
+                      // Cancelar la notificación programada
+                      await notificationProvider.cancelNotification(
+                        reminder.id.hashCode,
+                      );
+                      
+                      // Mostrar notificación de eliminación
+                      await notificationProvider.showInstantNotification(
+                        id: DateTime.now().millisecond,
+                        title: '🗑️ Recordatorio eliminado',
+                        body: 'Se eliminó "${reminder.title}"',
+                      );
+                      
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Recordatorio eliminado'),
+                            backgroundColor: Colors.red,
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      }
+                    }
                   }
                 },
                 itemBuilder: (context) => const [

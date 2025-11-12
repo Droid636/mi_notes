@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mi_notes/helpers/providers/data_provider.dart';
 import 'package:mi_notes/helpers/providers/auth_provider.dart';
+import 'package:mi_notes/helpers/providers/notification_provider.dart';
 import 'package:mi_notes/models/note_model.dart';
 
 class NoteFormScreen extends StatefulWidget {
@@ -60,24 +61,43 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                   if (!_formKey.currentState!.validate()) return;
 
                   try {
+                    final notificationProvider = 
+                        Provider.of<NotificationProvider>(context, listen: false);
+                    
                     if (widget.note == null) {
+                      // Crear nueva nota
                       await dataProvider.addNote(
                         uid,
                         _titleController.text,
                         _contentController.text,
                       );
+                      // Mostrar notificación de nota guardada
+                      await notificationProvider.showInstantNotification(
+                        id: DateTime.now().millisecond,
+                        title: '✅ Nota guardada',
+                        body: '${_titleController.text} se guardó correctamente',
+                      );
                     } else {
+                      // Editar nota existente
                       final updatedNote = widget.note!.copyWith(
                         title: _titleController.text,
                         content: _contentController.text,
                       );
                       await dataProvider.updateNote(updatedNote);
+                      // Mostrar notificación de nota actualizada
+                      await notificationProvider.showInstantNotification(
+                        id: DateTime.now().millisecond,
+                        title: '✏️ Nota actualizada',
+                        body: '${_titleController.text} fue actualizada',
+                      );
                     }
 
                     // Mostrar SnackBar de confirmación
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Nota guardada correctamente'),
+                        backgroundColor: Colors.green,
+                        duration: Duration(seconds: 2),
                       ),
                     );
 
@@ -85,7 +105,10 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                     Navigator.pop(context, true);
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error al guardar: $e')),
+                      SnackBar(
+                        content: Text('Error al guardar: $e'),
+                        backgroundColor: Colors.red,
+                      ),
                     );
                   }
                 },
