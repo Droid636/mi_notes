@@ -106,6 +106,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 context,
                 MaterialPageRoute(builder: (_) => NoteFormScreen(note: note)),
               ),
+              onActionSelected: (value) async {
+                if (value == 'edit') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => NoteFormScreen(note: note),
+                    ),
+                  );
+                } else if (value == 'delete') {
+                  await dataProvider.deleteNote(note.id);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Nota eliminada')),
+                  );
+                }
+              },
             );
           },
         );
@@ -133,6 +148,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (_) => EventFormScreen(event: event),
                 ),
               ),
+              onActionSelected: (value) async {
+                if (value == 'edit') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EventFormScreen(event: event),
+                    ),
+                  );
+                } else if (value == 'delete') {
+                  await dataProvider.deleteEvent(event.id);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Evento eliminado')),
+                  );
+                }
+              },
             );
           },
         );
@@ -155,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
             final reminder = reminders[index];
             return ReminderTile(
               reminder: reminder,
-              onTap: () {}, // Opcional si quieres abrir detalles
+              onTap: () {}, // Opcional
               trailing: PopupMenuButton<String>(
                 onSelected: (value) async {
                   if (value == 'edit') {

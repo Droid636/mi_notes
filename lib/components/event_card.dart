@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import '../models/event_model.dart';
-import '../utils/date_utils.dart'; // Para formato de fecha bonito
+import '../utils/date_utils.dart';
 
 class EventCard extends StatelessWidget {
   final EventModel event;
   final VoidCallback onTap;
+  final void Function(String action)? onActionSelected;
 
-  const EventCard({super.key, required this.event, required this.onTap});
+  const EventCard({
+    super.key,
+    required this.event,
+    required this.onTap,
+    this.onActionSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +24,15 @@ class EventCard extends StatelessWidget {
           '${formatDate(event.startDate)} - ${formatDate(event.endDate)}',
         ),
         onTap: onTap,
+        trailing: onActionSelected != null
+            ? PopupMenuButton<String>(
+                onSelected: (value) => onActionSelected!(value),
+                itemBuilder: (context) => const [
+                  PopupMenuItem(value: 'edit', child: Text('Editar')),
+                  PopupMenuItem(value: 'delete', child: Text('Eliminar')),
+                ],
+              )
+            : null,
       ),
     );
   }

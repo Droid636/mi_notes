@@ -4,8 +4,15 @@ import '../models/note_model.dart';
 class NoteCard extends StatelessWidget {
   final NoteModel note;
   final VoidCallback onTap;
+  final void Function(String action)?
+  onActionSelected; // 🔹 Callback para Editar/Eliminar
 
-  const NoteCard({super.key, required this.note, required this.onTap});
+  const NoteCard({
+    super.key,
+    required this.note,
+    required this.onTap,
+    this.onActionSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +22,20 @@ class NoteCard extends StatelessWidget {
         title: Text(note.title),
         subtitle: Text(note.content),
         onTap: onTap,
-        trailing: note.pinned ? const Icon(Icons.push_pin) : null,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (note.pinned) const Icon(Icons.push_pin),
+            if (onActionSelected != null)
+              PopupMenuButton<String>(
+                onSelected: (value) => onActionSelected!(value),
+                itemBuilder: (context) => const [
+                  PopupMenuItem(value: 'edit', child: Text('Editar')),
+                  PopupMenuItem(value: 'delete', child: Text('Eliminar')),
+                ],
+              ),
+          ],
+        ),
       ),
     );
   }
