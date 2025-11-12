@@ -159,35 +159,68 @@ class NotificationProvider with ChangeNotifier {
     required DateTime scheduledAt,
     String? payload,
   }) async {
-    // Convertir DateTime a tz.TZDateTime usando timezone local
-    final tz.TZDateTime scheduledTz = tz.TZDateTime.from(scheduledAt, tz.local);
+    try {
+      print('📋 Intentando programar notificación:');
+      print('   - ID: $id');
+      print('   - Título: $title');
+      print('   - Fecha programada: $scheduledAt');
+      print('   - Ahora: ${DateTime.now()}');
 
-    final androidDetails = AndroidNotificationDetails(
-      _defaultChannel.id,
-      _defaultChannel.name,
-      channelDescription: _defaultChannel.description,
-      importance: Importance.defaultImportance,
-      priority: Priority.defaultPriority,
-    );
-    final iosDetails = DarwinNotificationDetails();
+      // Verificar que la hora esté en el futuro
+      if (scheduledAt.isBefore(DateTime.now())) {
+        print('⚠️ ADVERTENCIA: La fecha está en el pasado.');
+        throw Exception('La fecha programada está en el pasado');
+      }
 
-    final platform = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
+      // Convertir DateTime a tz.TZDateTime usando timezone local
+      final tz.TZDateTime scheduledTz = tz.TZDateTime.from(
+        scheduledAt,
+        tz.local,
+      );
 
-    // zonedSchedule requiere timezone package inicializada
-    await _fln.zonedSchedule(
-      id,
-      title,
-      body,
-      scheduledTz,
-      platform,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.wallClockTime,
-      androidAllowWhileIdle: true,
-      payload: payload,
-    );
+      print('   - Convertido a TZ: $scheduledTz');
+
+      final androidDetails = AndroidNotificationDetails(
+        _defaultChannel.id,
+        _defaultChannel.name,
+        channelDescription: _defaultChannel.description,
+        importance: Importance.high,
+        priority: Priority.high,
+        enableVibration: true,
+        enableLights: true,
+      );
+
+      final iosDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+        sound: 'default',
+      );
+
+      final notificationDetails = NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      );
+
+      // zonedSchedule requiere timezone package inicializada
+      await _fln.zonedSchedule(
+        id,
+        title,
+        body,
+        scheduledTz,
+        notificationDetails,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        androidAllowWhileIdle: true,
+        matchDateTimeComponents: DateTimeComponents.dateAndTime,
+        payload: payload,
+      );
+
+      print('✅ Notificación programada exitosamente para: $scheduledTz');
+    } catch (e) {
+      print('❌ Error al programar notificación: $e');
+      rethrow;
+    }
   }
 
   /// Cancela una notificación por id

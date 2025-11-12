@@ -4,6 +4,7 @@ import 'package:mi_notes/helpers/providers/data_provider.dart';
 import 'package:mi_notes/helpers/providers/auth_provider.dart';
 import 'package:mi_notes/helpers/providers/notification_provider.dart';
 import 'package:mi_notes/models/event_model.dart';
+import 'package:uuid/uuid.dart';
 
 class EventFormScreen extends StatefulWidget {
   final EventModel? event;
@@ -122,6 +123,7 @@ class _EventFormScreenState extends State<EventFormScreen> {
 
                   if (widget.event == null) {
                     // Crear nuevo evento
+                    final newEventId = const Uuid().v4();
                     await dataProvider.addEvent(
                       uid,
                       _titleController.text,
@@ -129,12 +131,30 @@ class _EventFormScreenState extends State<EventFormScreen> {
                       _startDate!,
                       _endDate!,
                     );
-                    // Mostrar notificación de evento creado
+
+                    // Mostrar notificación inmediata
                     await notificationProvider.showInstantNotification(
                       id: DateTime.now().millisecond,
                       title: '📅 Evento creado',
                       body: '${_titleController.text} fue creado exitosamente',
                     );
+
+                    // Programar notificación para cuando inicie el evento
+                    if (_startDate!.isAfter(DateTime.now())) {
+                      try {
+                        await notificationProvider.scheduleNotification(
+                          id: newEventId.hashCode,
+                          title: '🔔 Evento: ${_titleController.text}',
+                          body: 'Tu evento está comenzando ahora',
+                          scheduledAt: _startDate!,
+                          payload: newEventId,
+                        );
+                      } catch (e) {
+                        print(
+                          'Advertencia: No se pudo programar notificación del evento: $e',
+                        );
+                      }
+                    }
                   } else {
                     // Editar evento existente
                     final updatedEvent = widget.event!.copyWith(
@@ -144,30 +164,55 @@ class _EventFormScreenState extends State<EventFormScreen> {
                       endDate: _endDate,
                     );
                     await dataProvider.updateEvent(updatedEvent);
-                    // Mostrar notificación de evento actualizado
+
+                    // Mostrar notificación inmediata
                     await notificationProvider.showInstantNotification(
                       id: DateTime.now().millisecond,
                       title: '✏️ Evento actualizado',
                       body: '${_titleController.text} fue actualizado',
                     );
+
+                    // Reprogramar notificación
+                    try {
+                      await notificationProvider.cancelNotification(
+                        widget.event!.id.hashCode,
+                      );
+                      if (_startDate!.isAfter(DateTime.now())) {
+                        await notificationProvider.scheduleNotification(
+                          id: updatedEvent.id.hashCode,
+                          title: '🔔 Evento: ${_titleController.text}',
+                          body: 'Tu evento está comenzando ahora',
+                          scheduledAt: _startDate!,
+                          payload: updatedEvent.id,
+                        );
+                      }
+                    } catch (e) {
+                      print(
+                        'Advertencia: No se pudo reprogramar notificación del evento: $e',
+                      );
+                    }
                   }
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Evento guardado correctamente'),
-                      backgroundColor: Colors.green,
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Evento guardado correctamente'),
+                        backgroundColor: Colors.green,
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
 
-                  Navigator.pop(context, true);
+                    Navigator.pop(context, true);
+                  }
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Error al guardar: $e'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error al guardar: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 }
               },
               child: const Text('Guardar'),

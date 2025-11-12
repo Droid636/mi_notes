@@ -120,17 +120,6 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
                     );
                     await dataProvider.addReminder(newReminder);
 
-                    // Programar notificación para la fecha/hora seleccionada
-                    if (_scheduledAt!.isAfter(DateTime.now())) {
-                      await notificationProvider.scheduleNotification(
-                        id: newReminder.id.hashCode,
-                        title: '🔔 Recordatorio: ${_titleController.text}',
-                        body: 'Es hora de: ${_titleController.text}',
-                        scheduledAt: _scheduledAt!,
-                        payload: newReminder.id,
-                      );
-                    }
-
                     // Mostrar notificación inmediata de creación
                     await notificationProvider.showInstantNotification(
                       id: DateTime.now().millisecond,
@@ -138,6 +127,25 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
                       body:
                           'Se programó "${_titleController.text}" para ${_scheduledAt!.toString().split('.')[0]}',
                     );
+
+                    // Intentar programar notificación para la fecha/hora seleccionada
+                    // (pero si falla, no detiene el guardado del recordatorio)
+                    if (_scheduledAt!.isAfter(DateTime.now())) {
+                      try {
+                        await notificationProvider.scheduleNotification(
+                          id: newReminder.id.hashCode,
+                          title: '🔔 Recordatorio: ${_titleController.text}',
+                          body: 'Es hora de: ${_titleController.text}',
+                          scheduledAt: _scheduledAt!,
+                          payload: newReminder.id,
+                        );
+                      } catch (e) {
+                        print(
+                          'Advertencia: No se pudo programar la notificación: $e',
+                        );
+                        // No lanzamos la excepción, solo registramos el error
+                      }
+                    }
                   } else {
                     // Editar recordatorio existente
                     final updatedReminder = widget.reminder!.copyWith(
@@ -146,20 +154,6 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
                     );
                     await dataProvider.updateReminder(updatedReminder);
 
-                    // Reprogramar notificación
-                    await notificationProvider.cancelNotification(
-                      widget.reminder!.id.hashCode,
-                    );
-                    if (_scheduledAt!.isAfter(DateTime.now())) {
-                      await notificationProvider.scheduleNotification(
-                        id: updatedReminder.id.hashCode,
-                        title: '🔔 Recordatorio: ${_titleController.text}',
-                        body: 'Es hora de: ${_titleController.text}',
-                        scheduledAt: _scheduledAt!,
-                        payload: updatedReminder.id,
-                      );
-                    }
-
                     // Mostrar notificación de actualización
                     await notificationProvider.showInstantNotification(
                       id: DateTime.now().millisecond,
@@ -167,24 +161,49 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
                       body:
                           'Se actualizó para ${_scheduledAt!.toString().split('.')[0]}',
                     );
+
+                    // Intentar reprogramar notificación
+                    try {
+                      await notificationProvider.cancelNotification(
+                        widget.reminder!.id.hashCode,
+                      );
+                      if (_scheduledAt!.isAfter(DateTime.now())) {
+                        await notificationProvider.scheduleNotification(
+                          id: updatedReminder.id.hashCode,
+                          title: '🔔 Recordatorio: ${_titleController.text}',
+                          body: 'Es hora de: ${_titleController.text}',
+                          scheduledAt: _scheduledAt!,
+                          payload: updatedReminder.id,
+                        );
+                      }
+                    } catch (e) {
+                      print(
+                        'Advertencia: No se pudo reprogramar la notificación: $e',
+                      );
+                      // No lanzamos la excepción, solo registramos el error
+                    }
                   }
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Recordatorio guardado correctamente'),
-                      backgroundColor: Colors.green,
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Recordatorio guardado correctamente'),
+                        backgroundColor: Colors.green,
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
 
-                  Navigator.pop(context, true); // refresca la lista
+                    Navigator.pop(context, true); // refresca la lista
+                  }
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Error al guardar: $e'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error al guardar: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 }
               },
               child: const Text('Guardar'),

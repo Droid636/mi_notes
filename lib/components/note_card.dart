@@ -31,7 +31,6 @@ class NoteCard extends StatelessWidget {
                 itemBuilder: (context) => const [
                   PopupMenuItem(value: 'edit', child: Text('Editar')),
                   PopupMenuItem(value: 'delete', child: Text('Eliminar')),
-                  PopupMenuItem(value: 'notify', child: Text('Notificar')),
                 ],
               ),
           ],
