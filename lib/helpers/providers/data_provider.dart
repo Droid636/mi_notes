@@ -72,20 +72,8 @@ class DataProvider with ChangeNotifier {
   // ===============================
   // 🔹 RECORDATORIOS
   // ===============================
-  Future<void> addReminder(
-    String uid,
-    DateTime scheduledAt,
-    String? eventId,
-    String? noteId,
-  ) async {
-    final reminder = ReminderModel(
-      id: _uuid.v4(),
-      uid: uid,
-      scheduledAt: scheduledAt,
-      title: 'Recordatorio', // Título por defecto
-      eventId: eventId,
-      noteId: noteId,
-    );
+
+  Future<void> addReminder(ReminderModel reminder) async {
     await _firestore.addReminder(reminder);
   }
 

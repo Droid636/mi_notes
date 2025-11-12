@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:mi_notes/helpers/providers/data_provider.dart';
 import 'package:mi_notes/helpers/providers/auth_provider.dart';
 import 'package:mi_notes/models/reminder_model.dart';
+import 'package:uuid/uuid.dart';
 
 class ReminderFormScreen extends StatefulWidget {
   final ReminderModel? reminder;
@@ -20,7 +21,7 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(
-      text: widget.reminder?.title ?? 'Recordatorio',
+      text: widget.reminder?.title ?? '',
     );
     _scheduledAt = widget.reminder?.scheduledAt;
   }
@@ -103,12 +104,15 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
 
                 try {
                   if (widget.reminder == null) {
-                    await dataProvider.addReminder(
-                      uid,
-                      _scheduledAt!,
-                      null,
-                      null,
+                    final newReminder = ReminderModel(
+                      id: const Uuid().v4(),
+                      uid: uid,
+                      title: _titleController.text,
+                      scheduledAt: _scheduledAt!,
+                      eventId: null,
+                      noteId: null,
                     );
+                    await dataProvider.addReminder(newReminder);
                   } else {
                     final updatedReminder = widget.reminder!.copyWith(
                       title: _titleController.text,
@@ -123,10 +127,7 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
                     ),
                   );
 
-                  Navigator.pop(
-                    context,
-                    true,
-                  ); // Devuelve true para refrescar la lista
+                  Navigator.pop(context, true); // refresca la lista
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Error al guardar: $e')),

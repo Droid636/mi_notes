@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ReminderModel {
   final String id;
   final String uid;
-  final String title; // ✅ Agregado
+  final String title;
   final DateTime scheduledAt;
   final String? eventId;
   final String? noteId;
@@ -11,7 +11,7 @@ class ReminderModel {
   ReminderModel({
     required this.id,
     required this.uid,
-    required this.title, // ✅ Agregado
+    required this.title,
     required this.scheduledAt,
     this.eventId,
     this.noteId,
@@ -21,7 +21,7 @@ class ReminderModel {
     return {
       'id': id,
       'uid': uid,
-      'title': title, // ✅ Guardar título
+      'title': title,
       'scheduledAt': Timestamp.fromDate(scheduledAt),
       'eventId': eventId,
       'noteId': noteId,
@@ -40,7 +40,7 @@ class ReminderModel {
     return ReminderModel(
       id: map['id'] ?? '',
       uid: map['uid'] ?? '',
-      title: map['title'] ?? 'Recordatorio', // ✅ Valor por defecto
+      title: map['title'] ?? 'Recordatorio',
       scheduledAt: _parseTimestamp(map['scheduledAt']),
       eventId: map['eventId'],
       noteId: map['noteId'],
