@@ -25,12 +25,6 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   @override
-  void initState() {
-    super.initState();
-    // ❌ Ya no se inicializa aquí, se hace en main.dart
-  }
-
-  @override
   Widget build(BuildContext context) {
     final authProvider = context.read<AuthProvider>();
     final uid = authProvider.currentUser!.uid;
@@ -216,13 +210,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
               if (confirmed ?? false) {
                 await dataProvider.deleteNote(note.id);
-                setState(() {}); // refresca UI
 
-                await notificationProvider.showInstantNotification(
-                  id: DateTime.now().millisecond,
-                  title: '🗑️ Nota eliminada',
-                  body: 'Se eliminó "${note.title}"',
-                );
+                try {
+                  await notificationProvider.showInstantNotification(
+                    id: DateTime.now().millisecond,
+                    title: '🗑️ Nota eliminada',
+                    body: 'Se eliminó "${note.title}"',
+                  );
+                } catch (_) {}
 
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -234,6 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
 
+                setState(() {});
                 Navigator.pop(context);
               }
             },
@@ -307,16 +303,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
               if (confirmed ?? false) {
                 await dataProvider.deleteEvent(event.id);
-                await notificationProvider.cancelNotification(
-                  event.id.hashCode,
-                );
-                setState(() {});
 
-                await notificationProvider.showInstantNotification(
-                  id: DateTime.now().millisecond,
-                  title: '🗑️ Evento eliminado',
-                  body: 'Se eliminó "${event.title}"',
-                );
+                try {
+                  await notificationProvider.cancelNotification(
+                    event.id.hashCode,
+                  );
+                } catch (_) {}
+
+                try {
+                  await notificationProvider.showInstantNotification(
+                    id: DateTime.now().millisecond,
+                    title: '🗑️ Evento eliminado',
+                    body: 'Se eliminó "${event.title}"',
+                  );
+                } catch (_) {}
 
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -328,6 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
 
+                setState(() {});
                 Navigator.pop(context);
               }
             },
@@ -393,16 +394,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
               if (confirmed ?? false) {
                 await dataProvider.deleteReminder(reminder.id);
-                await notificationProvider.cancelNotification(
-                  reminder.id.hashCode,
-                );
-                setState(() {});
 
-                await notificationProvider.showInstantNotification(
-                  id: DateTime.now().millisecond,
-                  title: '🗑️ Recordatorio eliminado',
-                  body: 'Se eliminó "${reminder.title}"',
-                );
+                try {
+                  await notificationProvider.cancelNotification(
+                    reminder.id.hashCode,
+                  );
+                } catch (_) {}
+
+                try {
+                  await notificationProvider.showInstantNotification(
+                    id: DateTime.now().millisecond,
+                    title: '🗑️ Recordatorio eliminado',
+                    body: 'Se eliminó "${reminder.title}"',
+                  );
+                } catch (_) {}
 
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -414,6 +419,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
 
+                setState(() {});
                 Navigator.pop(context);
               }
             },
