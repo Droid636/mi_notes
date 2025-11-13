@@ -43,64 +43,39 @@ class NotificationProvider with ChangeNotifier {
   Future<void> initNotifications() async {
     if (_initialized) return;
 
-    // Inicializar timezone (necesario para zoned scheduling)
-    try {
-      tz_data.initializeTimeZones();
-      tz.setLocalLocation(tz.getLocation(tz.local.name));
-    } catch (e) {
-      // Si falla timezone, zoned schedule puede fallar; manejar según necesidad
-      // print('Timezone init error: $e');
-    }
+    tz_data.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation(tz.local.name));
 
-    // Inicialización de flutter_local_notifications
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
-    final iosInit = DarwinInitializationSettings(
-      requestAlertPermission: false,
-      requestBadgePermission: false,
-      requestSoundPermission: false,
-      // onDidReceiveLocalNotification puede añadirse si se requiere
-    );
-
+    final iosInit = DarwinInitializationSettings();
     final settings = InitializationSettings(android: androidInit, iOS: iosInit);
-    await _fln.initialize(
-      settings,
-      onDidReceiveNotificationResponse: (response) {
-        // Manejar acción de tap en notificación local
-        // response.payload contiene datos si los enviaste
-      },
-    );
 
-    // Crear canal Android
+    await _fln.initialize(settings);
+
     await _fln
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >()
         ?.createNotificationChannel(_defaultChannel);
 
-    // Registrar handler background de Firebase Messaging
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-
-    // Listeners para mensajes en primer plano / app abierta desde notificación
     FirebaseMessaging.onMessage.listen((RemoteMessage msg) {
-      // Mostrar local notification si quieres
       final notification = msg.notification;
       if (notification != null) {
         showInstantNotification(
           id: msg.hashCode,
           title: notification.title ?? 'MiNotes',
           body: notification.body ?? '',
-          payload: msg.data.isNotEmpty ? msg.data.toString() : null,
         );
       }
     });
 
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage msg) {
-      // Manejar navegación cuando el usuario abre la app desde la notificación
-      // Puedes exponer un stream o callback si necesitas navegación global
-    });
-
     _initialized = true;
     notifyListeners();
+
+    // 👇 Aquí puedes obtener y mostrar el token
+    final token = await _fm.getToken();
+    print('🔑 Token FCM del dispositivo: $token');
   }
 
   /// Solicita permisos (iOS / Android 13+). Devuelve true si están permitidos.

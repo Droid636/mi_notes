@@ -49,16 +49,9 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        // AuthProvider (no extiende ChangeNotifier)
         Provider(create: (_) => AuthProvider()),
-
-        // DataProvider (sí extiende ChangeNotifier)
         ChangeNotifierProvider(create: (_) => DataProvider()),
-
-        // NotificationProvider (para notificaciones locales y push)
-        ChangeNotifierProvider<NotificationProvider>(
-          create: (_) => notificationProvider,
-        ),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: const MyApp(),
     ),

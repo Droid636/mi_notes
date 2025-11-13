@@ -27,23 +27,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-
-    /// ✅ Inicializar notificaciones locales y push al abrir la pantalla
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final notificationProvider = Provider.of<NotificationProvider>(
-        context,
-        listen: false,
-      );
-      await notificationProvider.initNotifications();
-      await notificationProvider.requestPermissions();
-
-      // ✅ Notificación de bienvenida local (opcional)
-      await notificationProvider.showInstantNotification(
-        id: DateTime.now().millisecond,
-        title: '¡Bienvenido!',
-        body: 'Tus recordatorios están activos.',
-      );
-    });
+    final notificationProvider = Provider.of<NotificationProvider>(
+      context,
+      listen: false,
+    );
+    notificationProvider.initNotifications();
+    notificationProvider.requestPermissions();
   }
 
   @override
