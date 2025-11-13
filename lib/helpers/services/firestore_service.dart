@@ -3,6 +3,7 @@ import 'package:mi_notes/models/note_model.dart';
 import 'package:mi_notes/models/event_model.dart';
 import 'package:mi_notes/models/reminder_model.dart';
 
+// Servicio para interactuar con Firestore
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 

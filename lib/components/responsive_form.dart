@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+// Componente de formulario responsivo
+
 class ResponsiveForm extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;

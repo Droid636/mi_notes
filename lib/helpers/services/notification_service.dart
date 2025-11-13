@@ -9,7 +9,7 @@ class NotificationService {
 
   factory NotificationService() => _instance;
 
-  /// ✅ Inicializa el sistema de notificaciones
+  /// Inicializa el sistema de notificaciones
   static Future<void> initialize() async {
     final service = NotificationService._instance;
     service._flutterLocalNotificationsPlugin =
@@ -33,13 +33,13 @@ class NotificationService {
       onDidReceiveBackgroundNotificationResponse: _notificationTapBackground,
     );
 
-    // ✅ Solicitar permisos en Android 13+
+    // Solicitar permisos en Android 13+
     await service.requestNotificationPermissions();
 
-    print('✅ Notificaciones inicializadas correctamente');
+    print('Notificaciones inicializadas correctamente');
   }
 
-  /// ✅ Solicita permisos (Android 13+ e iOS)
+  /// Solicita permisos (Android 13+ e iOS)
   Future<void> requestNotificationPermissions() async {
     // Android 13+
     final androidImplementation = _flutterLocalNotificationsPlugin
@@ -50,7 +50,7 @@ class NotificationService {
     if (androidImplementation != null) {
       final granted = await androidImplementation
           .requestNotificationsPermission();
-      print('🔔 Permiso de notificaciones en Android: $granted');
+      print('Permiso de notificaciones en Android: $granted');
     }
 
     // iOS
@@ -65,11 +65,11 @@ class NotificationService {
         badge: true,
         sound: true,
       );
-      print('🍏 Permiso de notificaciones solicitado en iOS');
+      print('Permiso de notificaciones solicitado en iOS');
     }
   }
 
-  /// ✅ Mostrar notificación instantánea
+  /// Mostrar notificación instantánea
   Future<void> showInstantNotification({
     required String title,
     required String body,
@@ -103,7 +103,7 @@ class NotificationService {
     );
   }
 
-  /// ✅ Programar notificación futura
+  /// Programar notificación futura
   Future<void> scheduleNotification({
     required DateTime scheduledDate,
     required String title,
@@ -136,14 +136,14 @@ class NotificationService {
         payload: payload,
       );
 
-      print('✅ Notificación programada para: $scheduledDate');
+      print('Notificación programada para: $scheduledDate');
     } catch (e) {
-      print('❌ Error al programar notificación: $e');
+      print('Error al programar notificación: $e');
     }
   }
 
   static void _onNotificationResponse(NotificationResponse response) {
-    print('📩 Notificación recibida: ${response.payload}');
+    print('Notificación recibida: ${response.payload}');
   }
 
   @pragma('vm:entry-point')

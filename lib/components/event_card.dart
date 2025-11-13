@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/event_model.dart';
 import '../utils/date_utils.dart';
 
+// Tarjeta para mostrar información de un evento
 class EventCard extends StatelessWidget {
   final EventModel event;
   final VoidCallback onTap;

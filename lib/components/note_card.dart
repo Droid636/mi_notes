@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/note_model.dart';
 
+// Tarjeta para mostrar información de una nota
+
 class NoteCard extends StatelessWidget {
   final NoteModel note;
   final VoidCallback onTap;

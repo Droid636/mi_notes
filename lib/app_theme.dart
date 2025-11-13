@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-/// Application theme configuration with light and dark themes
+// Tema de la aplicación
 class AppTheme {
-  // Color palette
+  // Paleta de colores
   static const Color _primaryColor = Color(0xFF6200EE); // Deep Purple
   static const Color _accentColor = Color(0xFF03DAC6); // Teal
   static const Color _errorColor = Color(0xFFB00020); // Red
   static const Color _surfaceLight = Color(0xFFFAFAFA);
   static const Color _surfaceDark = Color(0xFF121212);
 
-  /// Light theme configuration
+  /// Configuración del tema claro
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
@@ -54,7 +54,6 @@ class AppTheme {
         ),
       ),
 
-      // Text button styling
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: _primaryColor,
@@ -63,7 +62,6 @@ class AppTheme {
         ),
       ),
 
-      // Input field styling
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.grey[100],
@@ -96,7 +94,7 @@ class AppTheme {
         errorStyle: const TextStyle(color: _errorColor, fontSize: 12),
       ),
 
-      // Card styling
+      // estilos de tarjeta
       cardTheme: CardThemeData(
         color: Colors.white,
         elevation: 2,
@@ -104,14 +102,12 @@ class AppTheme {
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
       ),
 
-      // Floating Action Button styling
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: _primaryColor,
         foregroundColor: Colors.white,
         elevation: 4,
       ),
 
-      // Bottom Navigation Bar styling
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Colors.white,
         selectedItemColor: _primaryColor,
@@ -119,7 +115,6 @@ class AppTheme {
         elevation: 8,
       ),
 
-      // Snackbar styling
       snackBarTheme: SnackBarThemeData(
         backgroundColor: Colors.grey[800],
         contentTextStyle: const TextStyle(color: Colors.white),
@@ -127,14 +122,12 @@ class AppTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
 
-      // Dialog styling
       dialogTheme: DialogThemeData(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         backgroundColor: Colors.white,
         elevation: 8,
       ),
 
-      // Text themes
       textTheme: const TextTheme(
         displayLarge: TextStyle(
           fontSize: 32,
@@ -180,7 +173,7 @@ class AppTheme {
     );
   }
 
-  /// Dark theme configuration
+  /// Configuración del tema oscuro
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
@@ -214,7 +207,6 @@ class AppTheme {
         ),
       ),
 
-      // Button styling
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: _primaryColor,
@@ -225,7 +217,6 @@ class AppTheme {
         ),
       ),
 
-      // Text button styling
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: _accentColor,
@@ -234,7 +225,6 @@ class AppTheme {
         ),
       ),
 
-      // Input field styling
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: const Color(0xFF2A2A2A),
@@ -267,7 +257,6 @@ class AppTheme {
         errorStyle: const TextStyle(color: _errorColor, fontSize: 12),
       ),
 
-      // Card styling
       cardTheme: CardThemeData(
         color: const Color(0xFF1F1F1F),
         elevation: 2,
@@ -275,14 +264,12 @@ class AppTheme {
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
       ),
 
-      // Floating Action Button styling
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: _primaryColor,
         foregroundColor: Colors.white,
         elevation: 4,
       ),
 
-      // Bottom Navigation Bar styling
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Color(0xFF1F1F1F),
         selectedItemColor: _accentColor,
@@ -290,7 +277,6 @@ class AppTheme {
         elevation: 8,
       ),
 
-      // Snackbar styling
       snackBarTheme: SnackBarThemeData(
         backgroundColor: const Color(0xFF2A2A2A),
         contentTextStyle: const TextStyle(color: Colors.white),
@@ -298,14 +284,12 @@ class AppTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
 
-      // Dialog styling
       dialogTheme: DialogThemeData(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         backgroundColor: const Color(0xFF2A2A2A),
         elevation: 8,
       ),
 
-      // Text themes
       textTheme: const TextTheme(
         displayLarge: TextStyle(
           fontSize: 32,

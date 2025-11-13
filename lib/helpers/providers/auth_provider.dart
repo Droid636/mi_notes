@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../models/user_model.dart';
 
+// Proveedor para autenticación y gestión de usuarios
+
 class AuthProvider {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -28,13 +30,13 @@ class AuthProvider {
           displayName: displayName,
         );
 
-        // 🔹 Guardar datos en Firestore
+        //  Guardar datos en Firestore
         await _firestore
             .collection('users')
             .doc(user.uid)
             .set(userModel.toMap());
 
-        // 🔹 Cerrar sesión inmediatamente
+        //  Cerrar sesión inmediatamente
         await _auth.signOut();
 
         return userModel;

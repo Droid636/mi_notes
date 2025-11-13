@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../helpers/providers/auth_provider.dart';
 import '../helpers/providers/data_provider.dart';
-import '../helpers/providers/notification_provider.dart'; // ✅ Import agregado
+import '../helpers/providers/notification_provider.dart';
 import '../models/note_model.dart';
 import '../models/event_model.dart';
 import '../models/reminder_model.dart';
@@ -105,8 +105,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return StreamBuilder<List<NoteModel>>(
       stream: dataProvider.getNotes(uid),
       builder: (context, snapshot) {
-        if (!snapshot.hasData)
+        if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
+        }
         final notes = snapshot.data!;
         if (notes.isEmpty) return const Center(child: Text('No hay notas'));
         return ListView.builder(
@@ -124,8 +125,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return StreamBuilder<List<EventModel>>(
       stream: dataProvider.getEvents(uid),
       builder: (context, snapshot) {
-        if (!snapshot.hasData)
+        if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
+        }
         final events = snapshot.data!;
         if (events.isEmpty) return const Center(child: Text('No hay eventos'));
         return ListView.builder(
@@ -143,11 +145,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return StreamBuilder<List<ReminderModel>>(
       stream: dataProvider.getReminders(uid),
       builder: (context, snapshot) {
-        if (!snapshot.hasData)
+        if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
+        }
         final reminders = snapshot.data!;
-        if (reminders.isEmpty)
+        if (reminders.isEmpty) {
           return const Center(child: Text('No hay recordatorios'));
+        }
         return ListView.builder(
           itemCount: reminders.length,
           itemBuilder: (context, index) {
