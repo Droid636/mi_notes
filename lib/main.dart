@@ -23,32 +23,38 @@ import 'screens/note_screen.dart';
 import 'screens/event_screen.dart';
 import 'screens/reminder_screen.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('es_MX', null);
 
+  // Inicializar Firebase
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
   } catch (e) {
     if (e.toString().contains('duplicate-app')) {
-      print('Firebase ya estaba inicializado. Continuando.');
+      debugPrint('⚠️ Firebase ya estaba inicializado. Continuando.');
     } else {
       rethrow;
     }
   }
 
+  // Inicializar notificaciones
   final notificationProvider = NotificationProvider();
-  await notificationProvider.initNotifications();
-  await notificationProvider.requestPermissions();
+  try {
+    await notificationProvider.initNotifications();
+    await notificationProvider.requestPermissions();
+  } catch (e) {
+    debugPrint('Error inicializando notificaciones: $e');
+  }
 
   runApp(
     MultiProvider(
       providers: [
         Provider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => DataProvider()),
-        ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) => notificationProvider),
       ],
       child: const MyApp(),
     ),

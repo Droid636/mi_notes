@@ -27,19 +27,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    final notificationProvider = Provider.of<NotificationProvider>(
-      context,
-      listen: false,
-    );
-    notificationProvider.initNotifications();
-    notificationProvider.requestPermissions();
+    // ❌ Ya no se inicializa aquí, se hace en main.dart
   }
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = context.read<AuthProvider>();
     final uid = authProvider.currentUser!.uid;
-    final dataProvider = Provider.of<DataProvider>(context);
+    final dataProvider = context.watch<DataProvider>();
 
     return Scaffold(
       appBar: AppBar(
@@ -101,6 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // ================== Notas ==================
   Widget _buildNotes(String uid, DataProvider dataProvider) {
     return StreamBuilder<List<NoteModel>>(
       stream: dataProvider.getNotes(uid),
@@ -121,6 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // ================== Eventos ==================
   Widget _buildEvents(String uid, DataProvider dataProvider) {
     return StreamBuilder<List<EventModel>>(
       stream: dataProvider.getEvents(uid),
@@ -141,6 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // ================== Recordatorios ==================
   Widget _buildReminders(String uid, DataProvider dataProvider) {
     return StreamBuilder<List<ReminderModel>>(
       stream: dataProvider.getReminders(uid),
@@ -166,291 +164,263 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // ================== Modales ==================
   Future<void> _showNoteModal(NoteModel note) async {
-    final dataProvider = Provider.of<DataProvider>(context, listen: false);
-    final notificationProvider = Provider.of<NotificationProvider>(
-      context,
-      listen: false,
-    );
+    final dataProvider = context.read<DataProvider>();
+    final notificationProvider = context.read<NotificationProvider>();
 
     await showDialog<void>(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(note.title),
-          content: SingleChildScrollView(child: Text(note.content)),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cerrar'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => NoteFormScreen(note: note)),
-                );
-              },
-              child: const Text('Editar'),
-            ),
-            TextButton(
-              onPressed: () async {
-                final confirmed = await showDialog<bool>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Eliminar nota'),
-                      content: const Text(
-                        '¿Está seguro de que desea eliminar esta nota?',
+      builder: (context) => AlertDialog(
+        title: Text(note.title),
+        content: SingleChildScrollView(child: Text(note.content)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => NoteFormScreen(note: note)),
+              );
+            },
+            child: const Text('Editar'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Eliminar nota'),
+                  content: const Text(
+                    '¿Está seguro de que desea eliminar esta nota?',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancelar'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text(
+                        'Eliminar',
+                        style: TextStyle(color: Colors.red),
                       ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Cancelar'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: const Text(
-                            'Eliminar',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirmed ?? false) {
+                await dataProvider.deleteNote(note.id);
+                setState(() {}); // refresca UI
+
+                await notificationProvider.showInstantNotification(
+                  id: DateTime.now().millisecond,
+                  title: '🗑️ Nota eliminada',
+                  body: 'Se eliminó "${note.title}"',
                 );
 
-                if (confirmed ?? false) {
-                  await dataProvider.deleteNote(note.id);
-
-                  await notificationProvider.showInstantNotification(
-                    id: DateTime.now().millisecond,
-                    title: '🗑️ Nota eliminada',
-                    body: 'Se eliminó "${note.title}"',
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Nota eliminada'),
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 2),
+                    ),
                   );
-
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Nota eliminada'),
-                        backgroundColor: Colors.red,
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  }
-
-                  Navigator.pop(context);
                 }
-              },
-              child: const Text(
-                'Eliminar',
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-        );
-      },
+
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
     );
   }
 
   Future<void> _showEventModal(EventModel event) async {
-    final dataProvider = Provider.of<DataProvider>(context, listen: false);
-    final notificationProvider = Provider.of<NotificationProvider>(
-      context,
-      listen: false,
-    );
+    final dataProvider = context.read<DataProvider>();
+    final notificationProvider = context.read<NotificationProvider>();
 
     await showDialog<void>(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(event.title),
-          content: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(event.description),
-                const SizedBox(height: 12),
-                Text('Inicio: ${formatDateTime(event.startDate)}'),
-                Text('Fin: ${formatDateTime(event.endDate)}'),
-              ],
-            ),
+      builder: (context) => AlertDialog(
+        title: Text(event.title),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(event.description),
+              const SizedBox(height: 12),
+              Text('Inicio: ${formatDateTime(event.startDate)}'),
+              Text('Fin: ${formatDateTime(event.endDate)}'),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cerrar'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => EventFormScreen(event: event),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => EventFormScreen(event: event),
+                ),
+              );
+            },
+            child: const Text('Editar'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Eliminar evento'),
+                  content: const Text(
+                    '¿Está seguro de que desea eliminar este evento?',
                   ),
-                );
-              },
-              child: const Text('Editar'),
-            ),
-            TextButton(
-              onPressed: () async {
-                final confirmed = await showDialog<bool>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Eliminar evento'),
-                      content: const Text(
-                        '¿Está seguro de que desea eliminar este evento?',
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancelar'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text(
+                        'Eliminar',
+                        style: TextStyle(color: Colors.red),
                       ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Cancelar'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: const Text(
-                            'Eliminar',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirmed ?? false) {
+                await dataProvider.deleteEvent(event.id);
+                await notificationProvider.cancelNotification(
+                  event.id.hashCode,
+                );
+                setState(() {});
+
+                await notificationProvider.showInstantNotification(
+                  id: DateTime.now().millisecond,
+                  title: '🗑️ Evento eliminado',
+                  body: 'Se eliminó "${event.title}"',
                 );
 
-                if (confirmed ?? false) {
-                  await dataProvider.deleteEvent(event.id);
-
-                  await notificationProvider.cancelNotification(
-                    event.id.hashCode,
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Evento eliminado'),
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 2),
+                    ),
                   );
-
-                  await notificationProvider.showInstantNotification(
-                    id: DateTime.now().millisecond,
-                    title: '🗑️ Evento eliminado',
-                    body: 'Se eliminó "${event.title}"',
-                  );
-
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Evento eliminado'),
-                        backgroundColor: Colors.red,
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  }
-
-                  Navigator.pop(context);
                 }
-              },
-              child: const Text(
-                'Eliminar',
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-        );
-      },
+
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
     );
   }
 
   Future<void> _showReminderModal(ReminderModel reminder) async {
-    final dataProvider = Provider.of<DataProvider>(context, listen: false);
-    final notificationProvider = Provider.of<NotificationProvider>(
-      context,
-      listen: false,
-    );
+    final dataProvider = context.read<DataProvider>();
+    final notificationProvider = context.read<NotificationProvider>();
 
     await showDialog<void>(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(reminder.title),
-          content: Text(
-            'Programado para: ${formatDateTime(reminder.scheduledAt)}',
+      builder: (context) => AlertDialog(
+        title: Text(reminder.title),
+        content: Text(
+          'Programado para: ${formatDateTime(reminder.scheduledAt)}',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cerrar'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ReminderFormScreen(reminder: reminder),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ReminderFormScreen(reminder: reminder),
+                ),
+              );
+            },
+            child: const Text('Editar'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Eliminar recordatorio'),
+                  content: const Text(
+                    '¿Está seguro de que desea eliminar este recordatorio?',
                   ),
-                );
-              },
-              child: const Text('Editar'),
-            ),
-            TextButton(
-              onPressed: () async {
-                final confirmed = await showDialog<bool>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Eliminar recordatorio'),
-                      content: const Text(
-                        '¿Está seguro de que desea eliminar este recordatorio?',
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancelar'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text(
+                        'Eliminar',
+                        style: TextStyle(color: Colors.red),
                       ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Cancelar'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: const Text(
-                            'Eliminar',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirmed ?? false) {
+                await dataProvider.deleteReminder(reminder.id);
+                await notificationProvider.cancelNotification(
+                  reminder.id.hashCode,
+                );
+                setState(() {});
+
+                await notificationProvider.showInstantNotification(
+                  id: DateTime.now().millisecond,
+                  title: '🗑️ Recordatorio eliminado',
+                  body: 'Se eliminó "${reminder.title}"',
                 );
 
-                if (confirmed ?? false) {
-                  await dataProvider.deleteReminder(reminder.id);
-
-                  await notificationProvider.cancelNotification(
-                    reminder.id.hashCode,
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Recordatorio eliminado'),
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 2),
+                    ),
                   );
-
-                  await notificationProvider.showInstantNotification(
-                    id: DateTime.now().millisecond,
-                    title: '🗑️ Recordatorio eliminado',
-                    body: 'Se eliminó "${reminder.title}"',
-                  );
-
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Recordatorio eliminado'),
-                        backgroundColor: Colors.red,
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  }
-
-                  Navigator.pop(context);
                 }
-              },
-              child: const Text(
-                'Eliminar',
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-        );
-      },
+
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
     );
   }
 }

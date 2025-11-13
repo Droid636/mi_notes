@@ -5,7 +5,25 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz_data;
 
 /// Maneja mensajes en segundo plano
-Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {}
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  final fln = FlutterLocalNotificationsPlugin();
+  const androidDetails = AndroidNotificationDetails(
+    'mi_notes_channel',
+    'MiNotes Notificaciones',
+    importance: Importance.high,
+    priority: Priority.high,
+  );
+  const platformDetails = NotificationDetails(android: androidDetails);
+
+  if (message.notification != null) {
+    await fln.show(
+      message.hashCode,
+      message.notification!.title,
+      message.notification!.body,
+      platformDetails,
+    );
+  }
+}
 
 /// Proveedor de notificaciones (locales y Firebase)
 class NotificationProvider with ChangeNotifier {
@@ -61,7 +79,7 @@ class NotificationProvider with ChangeNotifier {
     notifyListeners();
 
     final token = await _fm.getToken();
-    print('Token FCM del dispositivo: $token');
+    debugPrint('Token FCM del dispositivo: $token');
   }
 
   /// Solicita permisos (Android 13+ / iOS)
