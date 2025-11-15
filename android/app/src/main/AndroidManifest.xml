@@ -1,7 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.mi_notes">
 
-    <!-- ✅ Permisos necesarios -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
@@ -15,7 +14,7 @@
         android:usesCleartextTraffic="true"
         android:requestLegacyExternalStorage="true">
 
-        <!-- ✅ Servicio para Firebase Cloud Messaging -->
+        
         <service
             android:name="io.flutter.plugins.firebase.messaging.FlutterFirebaseMessagingService"
             android:exported="false">
@@ -24,12 +23,12 @@
             </intent-filter>
         </service>
 
-        <!-- ✅ Canal de notificación por defecto -->
+        
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="mi_notes_channel" />
 
-        <!-- ✅ Actividad principal -->
+        
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -40,7 +39,7 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:windowSoftInputMode="adjustResize">
 
-            <!-- Tema visible durante el arranque -->
+           
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />
@@ -51,7 +50,7 @@
             </intent-filter>
         </activity>
 
-        <!-- ✅ Receptores requeridos por flutter_local_notifications -->
+       
         <receiver
             android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
             android:exported="true" />
@@ -69,13 +68,13 @@
             </intent-filter>
         </receiver>
 
-        <!-- ✅ No borrar: requerido por Flutter -->
+        
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
 
-    <!-- ✅ Permite el procesamiento de texto -->
+    
     <queries>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT" />

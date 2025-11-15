@@ -90,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ================== Notas ==================
+  // Notas
   Widget _buildNotes(String uid, DataProvider dataProvider) {
     return StreamBuilder<List<NoteModel>>(
       stream: dataProvider.getNotes(uid),
@@ -111,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ================== Eventos ==================
+  // Eventos
   Widget _buildEvents(String uid, DataProvider dataProvider) {
     return StreamBuilder<List<EventModel>>(
       stream: dataProvider.getEvents(uid),
@@ -132,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ================== Recordatorios ==================
+  //Recordatorios
   Widget _buildReminders(String uid, DataProvider dataProvider) {
     return StreamBuilder<List<ReminderModel>>(
       stream: dataProvider.getReminders(uid),
@@ -158,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ================== Modales ==================
+  // Modales de detalle y acciones
   Future<void> _showNoteModal(NoteModel note) async {
     final dataProvider = context.read<DataProvider>();
     final notificationProvider = context.read<NotificationProvider>();
