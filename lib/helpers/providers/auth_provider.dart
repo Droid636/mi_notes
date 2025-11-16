@@ -8,6 +8,10 @@ class AuthProvider {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // 👉 STREAM PARA DETECTAR CAMBIOS DE SESIÓN
+  // Esto permitirá saber si el usuario sigue logueado al abrir la app.
+  Stream<User?> get authState => _auth.authStateChanges();
+
   // Obtener el usuario actual
   User? get currentUser => _auth.currentUser;
 

@@ -27,66 +27,92 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.read<AuthProvider>();
-    final uid = authProvider.currentUser!.uid;
-    final dataProvider = context.watch<DataProvider>();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          _selectedIndex == 0
-              ? 'Notas'
+    // ⬅️ Agregado: envuelve todo para mantener la sesión
+    return StreamBuilder(
+      stream: authProvider.authState,
+      builder: (context, snapshot) {
+        // Esperando datos del usuario
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        // No hay usuario → login
+        if (!snapshot.hasData) {
+          Future.microtask(() {
+            Navigator.pushReplacementNamed(context, '/login');
+          });
+          return const Scaffold();
+        }
+
+        final uid = snapshot.data!.uid; // ⬅️ Reemplaza el .currentUser!.uid
+        final dataProvider = context.watch<DataProvider>();
+
+        // 🔽 TU CÓDIGO ORIGINAL DESDE AQUÍ 🔽
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(
+              _selectedIndex == 0
+                  ? 'Notas'
+                  : _selectedIndex == 1
+                  ? 'Eventos'
+                  : 'Recordatorios',
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.logout),
+                onPressed: () async {
+                  await authProvider.logout();
+                  Navigator.pushReplacementNamed(context, '/login');
+                },
+              ),
+            ],
+          ),
+          body: _selectedIndex == 0
+              ? _buildNotes(uid, dataProvider)
               : _selectedIndex == 1
-              ? 'Eventos'
-              : 'Recordatorios',
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await authProvider.logout();
-              Navigator.pushReplacementNamed(context, '/login');
+              ? _buildEvents(uid, dataProvider)
+              : _buildReminders(uid, dataProvider),
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: _selectedIndex,
+            onTap: (index) => setState(() => _selectedIndex = index),
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.note), label: 'Notas'),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.event),
+                label: 'Eventos',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.alarm),
+                label: 'Recordatorios',
+              ),
+            ],
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              if (_selectedIndex == 0) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const NoteFormScreen()),
+                );
+              } else if (_selectedIndex == 1) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const EventFormScreen()),
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ReminderFormScreen()),
+                );
+              }
             },
+            child: const Icon(Icons.add),
           ),
-        ],
-      ),
-      body: _selectedIndex == 0
-          ? _buildNotes(uid, dataProvider)
-          : _selectedIndex == 1
-          ? _buildEvents(uid, dataProvider)
-          : _buildReminders(uid, dataProvider),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.note), label: 'Notas'),
-          BottomNavigationBarItem(icon: Icon(Icons.event), label: 'Eventos'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.alarm),
-            label: 'Recordatorios',
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (_selectedIndex == 0) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const NoteFormScreen()),
-            );
-          } else if (_selectedIndex == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const EventFormScreen()),
-            );
-          } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ReminderFormScreen()),
-            );
-          }
-        },
-        child: const Icon(Icons.add),
-      ),
+        );
+      },
     );
   }
 

@@ -16,12 +16,12 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
   final nameController = TextEditingController();
 
-  final _formKey = GlobalKey<FormState>(); // <-- AÑADIDO
+  final _formKey = GlobalKey<FormState>();
 
   bool showRegisterFields = false;
 
   void _login() async {
-    if (!_formKey.currentState!.validate()) return; // <-- VALIDACIÓN
+    if (!_formKey.currentState!.validate()) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final user = await authProvider.login(
@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _register() async {
-    if (!_formKey.currentState!.validate()) return; // <-- VALIDACIÓN
+    if (!_formKey.currentState!.validate()) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final user = await authProvider.signUp(
@@ -80,11 +80,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.deepPurple.shade50,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: ResponsiveForm(
         child: Form(
-          // <-- AÑADIDO
           key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -101,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
               if (showRegisterFields)
                 TextFormField(
                   controller: nameController,
-                  validator: Validators.validateName, // <-- VALIDACIÓN
+                  validator: Validators.validateName,
                   decoration: const InputDecoration(
                     labelText: 'Nombre',
                     border: OutlineInputBorder(),
@@ -111,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               TextFormField(
                 controller: emailController,
-                validator: Validators.validateEmail, // <-- VALIDACIÓN
+                validator: Validators.validateEmail,
                 decoration: const InputDecoration(
                   labelText: 'Correo',
                   border: OutlineInputBorder(),
@@ -122,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
               TextFormField(
                 controller: passwordController,
                 obscureText: true,
-                validator: Validators.validatePassword, // <-- VALIDACIÓN
+                validator: Validators.validatePassword,
                 decoration: const InputDecoration(
                   labelText: 'Contraseña',
                   border: OutlineInputBorder(),
@@ -134,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ElevatedButton(
                   onPressed: _login,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 71, 110, 240),
+                    backgroundColor: colorScheme.primary,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 40,
                       vertical: 12,
@@ -150,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ElevatedButton(
                   onPressed: _register,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 71, 110, 240),
+                    backgroundColor: colorScheme.primary,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 40,
                       vertical: 12,
@@ -174,9 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   showRegisterFields
                       ? '¿Ya tienes cuenta? Inicia sesión'
                       : '¿No tienes cuenta? Regístrate',
-                  style: const TextStyle(
-                    color: Color.fromARGB(255, 255, 255, 255),
-                  ),
+                  style: TextStyle(color: colorScheme.secondary),
                 ),
               ),
             ],

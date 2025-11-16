@@ -6,7 +6,6 @@ import 'package:intl/date_symbol_data_local.dart';
 // Providers
 import 'helpers/providers/auth_provider.dart';
 import 'helpers/providers/data_provider.dart';
-import 'helpers/providers/notification_provider.dart';
 
 // Firebase
 import 'firebase_options.dart';
@@ -22,6 +21,9 @@ import 'screens/login_screen.dart';
 import 'screens/note_screen.dart';
 import 'screens/event_screen.dart';
 import 'screens/reminder_screen.dart';
+
+// Services
+import 'helpers/services/notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,13 +42,11 @@ Future<void> main() async {
     }
   }
 
-  // Inicializar notificaciones
-  final notificationProvider = NotificationProvider();
+  // Inicializar notificaciones (nuevo)
   try {
-    await notificationProvider.initNotifications();
-    await notificationProvider.requestPermissions();
+    await NotificationService.initialize();
   } catch (e) {
-    debugPrint('Error inicializando notificaciones: $e');
+    debugPrint('❌ Error inicializando notificaciones: $e');
   }
 
   runApp(
@@ -54,7 +54,6 @@ Future<void> main() async {
       providers: [
         Provider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => DataProvider()),
-        ChangeNotifierProvider(create: (_) => notificationProvider),
       ],
       child: const MyApp(),
     ),
@@ -66,13 +65,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.read<AuthProvider>();
+
     return MaterialApp(
       title: 'Mi Notes',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      initialRoute: '/login',
+
+      // Redirige si hay sesión activa
+      home: auth.currentUser == null ? const LoginScreen() : const HomeScreen(),
+
       routes: {
         '/login': (context) => const LoginScreen(),
         '/home': (context) => const HomeScreen(),

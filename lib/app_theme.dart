@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 // Tema de la aplicación
 class AppTheme {
-  // Paleta de colores
-  static const Color _primaryColor = Color(0xFF6200EE); // Deep Purple
-  static const Color _accentColor = Color(0xFF03DAC6); // Teal
-  static const Color _errorColor = Color(0xFFB00020); // Red
-  static const Color _surfaceLight = Color(0xFFFAFAFA);
-  static const Color _surfaceDark = Color(0xFF121212);
+  // 🎨 Nueva paleta de colores (suave y moderna)
+  static const Color _primaryColor = Color(0xFF6C63FF); // Violeta moderno
+  static const Color _accentColor = Color(0xFF5ECFFF); // Azul pastel suave
+  static const Color _errorColor = Color(0xFFE74C3C); // Rojo elegante
+  static const Color _surfaceLight = Color(0xFFF4F6FA); // Fondo claro suave
+  static const Color _surfaceDark = Color(0xFF1A1C1E); // Oscuro gris-azulado
 
   /// Configuración del tema claro
   static ThemeData get lightTheme {
@@ -17,7 +17,6 @@ class AppTheme {
       primaryColor: _primaryColor,
       scaffoldBackgroundColor: _surfaceLight,
 
-      // Color scheme for Material 3
       colorScheme: const ColorScheme.light(
         primary: _primaryColor,
         onPrimary: Colors.white,
@@ -27,10 +26,9 @@ class AppTheme {
         onError: Colors.white,
         surface: _surfaceLight,
         onSurface: Colors.black87,
-        tertiary: Color(0xFFBB86FC),
+        tertiary: Color(0xFFA992FF), // Lavanda suave
       ),
 
-      // AppBar styling
       appBarTheme: const AppBarTheme(
         backgroundColor: _primaryColor,
         foregroundColor: Colors.white,
@@ -43,63 +41,50 @@ class AppTheme {
         ),
       ),
 
-      // Button styling
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: _primaryColor,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
 
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: _primaryColor,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          textStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
       ),
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.grey[100],
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
-        ),
+        fillColor: Color(0xFFF0F1F5),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.grey, width: 0.5),
+          borderSide: BorderSide(color: Colors.grey, width: 0.5),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey[300]!, width: 0.5),
+          borderSide: BorderSide(color: Color(0xFFDADCE3), width: 0.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: _primaryColor, width: 2),
+          borderSide: BorderSide(color: _primaryColor, width: 2),
         ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: _errorColor, width: 1),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: _errorColor, width: 2),
-        ),
-        labelStyle: const TextStyle(color: Colors.grey),
-        hintStyle: TextStyle(color: Colors.grey[400]),
-        errorStyle: const TextStyle(color: _errorColor, fontSize: 12),
+        labelStyle: TextStyle(color: Colors.grey[700]),
+        hintStyle: TextStyle(color: Colors.grey[500]),
+        errorStyle: TextStyle(color: _errorColor, fontSize: 12),
       ),
 
-      // estilos de tarjeta
       cardTheme: CardThemeData(
         color: Colors.white,
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+        margin: EdgeInsets.symmetric(vertical: 8, horizontal: 0),
       ),
 
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
@@ -116,8 +101,8 @@ class AppTheme {
       ),
 
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: Colors.grey[800],
-        contentTextStyle: const TextStyle(color: Colors.white),
+        backgroundColor: Colors.black87,
+        contentTextStyle: TextStyle(color: Colors.white),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
@@ -128,7 +113,7 @@ class AppTheme {
         elevation: 8,
       ),
 
-      textTheme: const TextTheme(
+      textTheme: TextTheme(
         displayLarge: TextStyle(
           fontSize: 32,
           fontWeight: FontWeight.bold,
@@ -181,7 +166,6 @@ class AppTheme {
       primaryColor: _primaryColor,
       scaffoldBackgroundColor: _surfaceDark,
 
-      // Color scheme for Material 3
       colorScheme: const ColorScheme.dark(
         primary: _primaryColor,
         onPrimary: Colors.white,
@@ -191,12 +175,11 @@ class AppTheme {
         onError: Colors.white,
         surface: _surfaceDark,
         onSurface: Colors.white,
-        tertiary: Color(0xFFBB86FC),
+        tertiary: Color(0xFFA992FF),
       ),
 
-      // AppBar styling
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF1F1F1F),
+        backgroundColor: Color(0xFF26282B),
         foregroundColor: Colors.white,
         elevation: 4.0,
         centerTitle: false,
@@ -211,86 +194,69 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: _primaryColor,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
 
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: _accentColor,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          textStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
       ),
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFF2A2A2A),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
-        ),
+        fillColor: Color(0xFF2C2F33),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF404040), width: 0.5),
+          borderSide: BorderSide(color: Color(0xFF3D4044), width: 0.5),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF404040), width: 0.5),
+          borderSide: BorderSide(color: Color(0xFF3D4044), width: 0.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: _accentColor, width: 2),
+          borderSide: BorderSide(color: _accentColor, width: 2),
         ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: _errorColor, width: 1),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: _errorColor, width: 2),
-        ),
-        labelStyle: const TextStyle(color: Colors.grey),
-        hintStyle: const TextStyle(color: Color(0xFF808080)),
-        errorStyle: const TextStyle(color: _errorColor, fontSize: 12),
+        labelStyle: TextStyle(color: Colors.grey[400]),
+        hintStyle: TextStyle(color: Colors.grey[500]),
+        errorStyle: TextStyle(color: _errorColor, fontSize: 12),
       ),
 
       cardTheme: CardThemeData(
-        color: const Color(0xFF1F1F1F),
+        color: Color(0xFF242628),
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+        margin: EdgeInsets.symmetric(vertical: 8, horizontal: 0),
       ),
 
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: _primaryColor,
-        foregroundColor: Colors.white,
-        elevation: 4,
-      ),
-
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: Color(0xFF1F1F1F),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: Color(0xFF242628),
         selectedItemColor: _accentColor,
         unselectedItemColor: Colors.grey,
         elevation: 8,
       ),
 
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: const Color(0xFF2A2A2A),
-        contentTextStyle: const TextStyle(color: Colors.white),
+        backgroundColor: Color(0xFF2C2F33),
+        contentTextStyle: TextStyle(color: Colors.white),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
 
       dialogTheme: DialogThemeData(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        backgroundColor: const Color(0xFF2A2A2A),
+        backgroundColor: Color(0xFF26282B),
         elevation: 8,
       ),
 
-      textTheme: const TextTheme(
+      textTheme: TextTheme(
         displayLarge: TextStyle(
           fontSize: 32,
           fontWeight: FontWeight.bold,

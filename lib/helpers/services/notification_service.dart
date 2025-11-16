@@ -1,75 +1,92 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:permission_handler/permission_handler.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
-  late FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin;
+
+  late FlutterLocalNotificationsPlugin _plugin;
 
   NotificationService._internal();
 
   factory NotificationService() => _instance;
 
-  /// Inicializa el sistema de notificaciones
+  /// Inicializar sistema de notificaciones
   static Future<void> initialize() async {
     final service = NotificationService._instance;
-    service._flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
+    service._plugin = FlutterLocalNotificationsPlugin();
 
-    const androidSettings = AndroidInitializationSettings('app_icon');
-    const iosSettings = DarwinInitializationSettings(
+    const androidInit = AndroidInitializationSettings('app_icon');
+
+    const iosInit = DarwinInitializationSettings(
       requestSoundPermission: true,
       requestBadgePermission: true,
       requestAlertPermission: true,
     );
 
     final initSettings = InitializationSettings(
-      android: androidSettings,
-      iOS: iosSettings,
+      android: androidInit,
+      iOS: iosInit,
     );
 
-    await service._flutterLocalNotificationsPlugin.initialize(
+    await service._plugin.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationResponse,
       onDidReceiveBackgroundNotificationResponse: _notificationTapBackground,
     );
 
-    // Solicitar permisos en Android 13+
+    // Pedir permisos normales
     await service.requestNotificationPermissions();
+    // Pedir permiso de alarmas exactas
+    await service.requestAlarmsPermission();
 
     print('Notificaciones inicializadas correctamente');
   }
 
-  /// Solicita permisos (Android 13+ e iOS)
+  /// Solicitar permisos normales de notificaciones
   Future<void> requestNotificationPermissions() async {
-    // Android 13+
-    final androidImplementation = _flutterLocalNotificationsPlugin
+    final android = _plugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
 
-    if (androidImplementation != null) {
-      final granted = await androidImplementation
-          .requestNotificationsPermission();
-      print('Permiso de notificaciones en Android: $granted');
+    if (android != null) {
+      final granted = await android.requestNotificationsPermission();
+      print('Permiso notificaciones Android: $granted');
     }
 
-    // iOS
-    final iosImplementation = _flutterLocalNotificationsPlugin
+    final ios = _plugin
         .resolvePlatformSpecificImplementation<
           IOSFlutterLocalNotificationsPlugin
         >();
 
-    if (iosImplementation != null) {
-      await iosImplementation.requestPermissions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-      print('Permiso de notificaciones solicitado en iOS');
+    if (ios != null) {
+      await ios.requestPermissions(alert: true, badge: true, sound: true);
+      print('Permiso notificaciones iOS solicitado');
     }
   }
 
-  /// Mostrar notificación instantánea
+  /// Solicitar permiso para alarmas exactas
+  Future<void> requestAlarmsPermission() async {
+    final status = await Permission.scheduleExactAlarm.status;
+
+    if (status.isDenied || status.isRestricted) {
+      print("Pidiendo permiso SCHEDULE_EXACT_ALARM...");
+
+      final result = await Permission.scheduleExactAlarm.request();
+
+      print("Resultado permiso alarmas: $result");
+
+      if (!result.isGranted) {
+        print("No se otorgó permiso. Abriendo configuración...");
+        await openAppSettings();
+      }
+    } else {
+      print("Permiso de alarmas ya otorgado");
+    }
+  }
+
+  /// Notificación instantánea
   Future<void> showInstantNotification({
     required String title,
     required String body,
@@ -89,16 +106,11 @@ class NotificationService {
       presentSound: true,
     );
 
-    final details = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
-
-    await _flutterLocalNotificationsPlugin.show(
-      DateTime.now().millisecond,
+    await _plugin.show(
+      DateTime.now().millisecondsSinceEpoch ~/ 1000,
       title,
       body,
-      details,
+      const NotificationDetails(android: androidDetails, iOS: iosDetails),
       payload: payload,
     );
   }
@@ -111,8 +123,8 @@ class NotificationService {
     String? payload,
   }) async {
     try {
-      await _flutterLocalNotificationsPlugin.zonedSchedule(
-        DateTime.now().millisecond,
+      await _plugin.zonedSchedule(
+        DateTime.now().millisecondsSinceEpoch ~/ 1000,
         title,
         body,
         tz.TZDateTime.from(scheduledDate, tz.local),
@@ -136,14 +148,14 @@ class NotificationService {
         payload: payload,
       );
 
-      print('Notificación programada para: $scheduledDate');
+      print("Notificación programada para $scheduledDate");
     } catch (e) {
-      print('Error al programar notificación: $e');
+      print("Error al programar notificación: $e");
     }
   }
 
   static void _onNotificationResponse(NotificationResponse response) {
-    print('Notificación recibida: ${response.payload}');
+    print("Notificación tocada: ${response.payload}");
   }
 
   @pragma('vm:entry-point')
