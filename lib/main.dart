@@ -6,6 +6,7 @@ import 'package:intl/date_symbol_data_local.dart';
 // Providers
 import 'helpers/providers/auth_provider.dart';
 import 'helpers/providers/data_provider.dart';
+import 'helpers/providers/notification_provider.dart'; // 👈 AGREGADO
 
 // Firebase
 import 'firebase_options.dart';
@@ -42,7 +43,7 @@ Future<void> main() async {
     }
   }
 
-  // Inicializar notificaciones (nuevo)
+  // Inicializar notificaciones
   try {
     await NotificationService.initialize();
   } catch (e) {
@@ -54,6 +55,9 @@ Future<void> main() async {
       providers: [
         Provider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => DataProvider()),
+        ChangeNotifierProvider(
+          create: (_) => NotificationProvider(),
+        ), // 👈 AGREGADO
       ],
       child: const MyApp(),
     ),
@@ -74,7 +78,6 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
 
-      // Redirige si hay sesión activa
       home: auth.currentUser == null ? const LoginScreen() : const HomeScreen(),
 
       routes: {

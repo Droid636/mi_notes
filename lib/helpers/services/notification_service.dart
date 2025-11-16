@@ -1,5 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:permission_handler/permission_handler.dart';
 
 class NotificationService {
@@ -15,6 +16,10 @@ class NotificationService {
   static Future<void> initialize() async {
     final service = NotificationService._instance;
     service._plugin = FlutterLocalNotificationsPlugin();
+
+    // 🔥 INICIALIZAR TIMEZONE (LO QUE FALTABA)
+    tz_data.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation('America/Mexico_City'));
 
     const androidInit = AndroidInitializationSettings('app_icon');
 
@@ -35,15 +40,13 @@ class NotificationService {
       onDidReceiveBackgroundNotificationResponse: _notificationTapBackground,
     );
 
-    // Pedir permisos normales
     await service.requestNotificationPermissions();
-    // Pedir permiso de alarmas exactas
     await service.requestAlarmsPermission();
 
-    print('Notificaciones inicializadas correctamente');
+    print('📌 Notificaciones inicializadas correctamente con timezone');
   }
 
-  /// Solicitar permisos normales de notificaciones
+  /// Solicitar permisos normales
   Future<void> requestNotificationPermissions() async {
     final android = _plugin
         .resolvePlatformSpecificImplementation<
@@ -62,27 +65,19 @@ class NotificationService {
 
     if (ios != null) {
       await ios.requestPermissions(alert: true, badge: true, sound: true);
-      print('Permiso notificaciones iOS solicitado');
     }
   }
 
-  /// Solicitar permiso para alarmas exactas
+  /// Solicitar permiso de alarmas exactas
   Future<void> requestAlarmsPermission() async {
     final status = await Permission.scheduleExactAlarm.status;
 
     if (status.isDenied || status.isRestricted) {
-      print("Pidiendo permiso SCHEDULE_EXACT_ALARM...");
-
       final result = await Permission.scheduleExactAlarm.request();
 
-      print("Resultado permiso alarmas: $result");
-
       if (!result.isGranted) {
-        print("No se otorgó permiso. Abriendo configuración...");
         await openAppSettings();
       }
-    } else {
-      print("Permiso de alarmas ya otorgado");
     }
   }
 
@@ -123,17 +118,19 @@ class NotificationService {
     String? payload,
   }) async {
     try {
+      final tzDate = tz.TZDateTime.from(scheduledDate, tz.local);
+
       await _plugin.zonedSchedule(
         DateTime.now().millisecondsSinceEpoch ~/ 1000,
         title,
         body,
-        tz.TZDateTime.from(scheduledDate, tz.local),
+        tzDate,
         const NotificationDetails(
           android: AndroidNotificationDetails(
             'mi_notes_scheduled',
             'Scheduled Notifications',
             channelDescription: 'Recordatorios programados',
-            importance: Importance.high,
+            importance: Importance.max,
             priority: Priority.high,
           ),
           iOS: DarwinNotificationDetails(
@@ -148,14 +145,14 @@ class NotificationService {
         payload: payload,
       );
 
-      print("Notificación programada para $scheduledDate");
+      print("⏰ Notificación programada para: $tzDate");
     } catch (e) {
-      print("Error al programar notificación: $e");
+      print("❌ Error programando notificación: $e");
     }
   }
 
   static void _onNotificationResponse(NotificationResponse response) {
-    print("Notificación tocada: ${response.payload}");
+    print("📨 Notificación tocada: ${response.payload}");
   }
 
   @pragma('vm:entry-point')
