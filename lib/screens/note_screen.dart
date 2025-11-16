@@ -19,6 +19,9 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
   late TextEditingController _titleController;
   late TextEditingController _contentController;
 
+  // ⭐ Nuevo: soporte para PINNED
+  late bool _pinned;
+
   @override
   void initState() {
     super.initState();
@@ -26,6 +29,7 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
     _contentController = TextEditingController(
       text: widget.note?.content ?? '',
     );
+    _pinned = widget.note?.pinned ?? false; // ← si es edición, cargar
   }
 
   @override
@@ -50,7 +54,9 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                 validator: (val) =>
                     val == null || val.isEmpty ? 'Ingrese un título' : null,
               ),
+
               const SizedBox(height: 12),
+
               TextFormField(
                 controller: _contentController,
                 maxLines: 6,
@@ -58,7 +64,20 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                 validator: (val) =>
                     val == null || val.isEmpty ? 'Ingrese contenido' : null,
               ),
+
+              const SizedBox(height: 18),
+
+              // ⭐ Switch para Fijar Nota
+              SwitchListTile(
+                title: const Text("Fijar nota (pinned)"),
+                value: _pinned,
+                onChanged: (val) {
+                  setState(() => _pinned = val);
+                },
+              ),
+
               const SizedBox(height: 20),
+
               ElevatedButton(
                 onPressed: () async {
                   if (!_formKey.currentState!.validate()) return;
@@ -71,13 +90,14 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                         );
 
                     if (widget.note == null) {
-                      // Crear nueva nota
+                      // ⭐ Crear nota con pinned
                       await dataProvider.addNote(
                         uid,
                         _titleController.text,
                         _contentController.text,
+                        pinned: _pinned, // ← lo agregué
                       );
-                      // Mostrar notificación de nota guardada
+
                       await notificationProvider.showInstantNotification(
                         id: DateTime.now().millisecond,
                         title: '✅ Nota guardada',
@@ -85,13 +105,15 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                             '${_titleController.text} se guardó correctamente',
                       );
                     } else {
-                      // Editar nota existente
+                      // ⭐ Actualizar nota con pinned
                       final updatedNote = widget.note!.copyWith(
                         title: _titleController.text,
                         content: _contentController.text,
+                        pinned: _pinned, // ← también lo agregué
                       );
+
                       await dataProvider.updateNote(updatedNote);
-                      // Mostrar notificación de nota actualizada
+
                       await notificationProvider.showInstantNotification(
                         id: DateTime.now().millisecond,
                         title: '✏️ Nota actualizada',
@@ -99,7 +121,6 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                       );
                     }
 
-                    // Mostrar SnackBar de confirmación
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Nota guardada correctamente'),
@@ -108,7 +129,6 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                       ),
                     );
 
-                    // Regresar a la pantalla anterior indicando que hubo cambios
                     Navigator.pop(context, true);
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(

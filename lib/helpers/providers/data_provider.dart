@@ -10,13 +10,18 @@ class DataProvider with ChangeNotifier {
   final Uuid _uuid = const Uuid();
 
   // Notas
-  Future<void> addNote(String uid, String title, String content) async {
+  Future<void> addNote(
+    String uid,
+    String title,
+    String content, {
+    bool pinned = false, // ⭐ AGREGADO
+  }) async {
     final note = NoteModel(
       id: _uuid.v4(),
       uid: uid,
       title: title,
       content: content,
-      pinned: false,
+      pinned: pinned, // ⭐ YA SE GUARDA
       createdAt: DateTime.now(),
     );
     await _firestore.addNote(note);
@@ -54,7 +59,6 @@ class DataProvider with ChangeNotifier {
     await _firestore.addEvent(event);
   }
 
-  // Post , Update , Delete , Get Events
   Future<void> updateEvent(EventModel event) async {
     await _firestore.updateEvent(event);
   }
@@ -68,8 +72,6 @@ class DataProvider with ChangeNotifier {
   }
 
   // Recordatorios
-  // Post , Update , Delete , Get Reminders
-
   Future<void> addReminder(ReminderModel reminder) async {
     await _firestore.addReminder(reminder);
   }

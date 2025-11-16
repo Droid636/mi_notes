@@ -124,8 +124,21 @@ class _HomeScreenState extends State<HomeScreen> {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
+
         final notes = snapshot.data!;
-        if (notes.isEmpty) return const Center(child: Text('No hay notas'));
+        if (notes.isEmpty) {
+          return const Center(child: Text('No hay notas'));
+        }
+
+        // 🔥 ORDENAR: fijadas arriba, luego normales
+        notes.sort((a, b) {
+          if (a.pinned == b.pinned) {
+            // Orden por fecha (más nuevas arriba)
+            return b.createdAt.compareTo(a.createdAt);
+          }
+          return a.pinned ? -1 : 1;
+        });
+
         return ListView.builder(
           itemCount: notes.length,
           itemBuilder: (context, index) {
@@ -195,6 +208,26 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text(note.title),
         content: SingleChildScrollView(child: Text(note.content)),
         actions: [
+          // ⭐⭐⭐ AGREGADO: Fijar / Desfijar ⭐⭐⭐
+          TextButton(
+            onPressed: () async {
+              final updated = note.copyWith(pinned: !note.pinned);
+              await dataProvider.updateNote(updated);
+
+              Navigator.pop(context);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    updated.pinned ? 'Nota fijada' : 'Nota desfijada',
+                  ),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            },
+            child: Text(note.pinned ? 'Desfijar' : 'Fijar'),
+          ),
+
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cerrar'),
