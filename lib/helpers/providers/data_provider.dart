@@ -1,3 +1,4 @@
+// lib/helpers/providers/data_provider.dart
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:mi_notes/helpers/services/firestore_service.dart';
@@ -14,20 +15,19 @@ class DataProvider with ChangeNotifier {
     String uid,
     String title,
     String content, {
-    bool pinned = false, // ⭐ AGREGADO
+    bool pinned = false,
   }) async {
     final note = NoteModel(
       id: _uuid.v4(),
       uid: uid,
       title: title,
       content: content,
-      pinned: pinned, // ⭐ YA SE GUARDA
+      pinned: pinned,
       createdAt: DateTime.now(),
     );
     await _firestore.addNote(note);
   }
 
-  // Post , Update , Delete , Get Notes
   Future<void> updateNote(NoteModel note) async {
     await _firestore.updateNote(note);
   }

@@ -6,7 +6,7 @@ import 'package:intl/date_symbol_data_local.dart';
 // Providers
 import 'helpers/providers/auth_provider.dart';
 import 'helpers/providers/data_provider.dart';
-import 'helpers/providers/notification_provider.dart'; // 👈 AGREGADO
+import 'helpers/providers/notification_provider.dart'; // 👈 YA INCLUIDO
 
 // Firebase
 import 'firebase_options.dart';
@@ -57,7 +57,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => DataProvider()),
         ChangeNotifierProvider(
           create: (_) => NotificationProvider(),
-        ), // 👈 AGREGADO
+        ), // 👈 CORRECTO
       ],
       child: const MyApp(),
     ),

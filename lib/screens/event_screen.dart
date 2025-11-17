@@ -1,3 +1,4 @@
+// lib/screens/event_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mi_notes/helpers/providers/data_provider.dart';
@@ -18,8 +19,8 @@ class EventFormScreen extends StatefulWidget {
 class _EventFormScreenState extends State<EventFormScreen> {
   late TextEditingController _titleController;
   late TextEditingController _descController;
-  DateTime? _startDate;
-  DateTime? _endDate;
+  DateTime? _selectedDate;
+  TimeOfDay? _selectedTime;
 
   @override
   void initState() {
@@ -28,8 +29,18 @@ class _EventFormScreenState extends State<EventFormScreen> {
     _descController = TextEditingController(
       text: widget.event?.description ?? '',
     );
-    _startDate = widget.event?.startDate;
-    _endDate = widget.event?.endDate;
+
+    if (widget.event != null) {
+      _selectedDate = widget.event!.startDate;
+      _selectedTime = TimeOfDay.fromDateTime(widget.event!.startDate);
+    }
+  }
+
+  DateTime? _composeDateTime() {
+    if (_selectedDate == null) return null;
+    final date = _selectedDate!;
+    final time = _selectedTime ?? TimeOfDay(hour: 0, minute: 0);
+    return DateTime(date.year, date.month, date.day, time.hour, time.minute);
   }
 
   @override
@@ -56,63 +67,76 @@ class _EventFormScreenState extends State<EventFormScreen> {
               decoration: const InputDecoration(labelText: 'Descripción'),
             ),
             const SizedBox(height: 16),
+
             Row(
               children: [
                 Expanded(
                   child: Text(
-                    _startDate == null
-                        ? 'Fecha de inicio'
-                        : 'Inicio: ${_startDate!.toLocal()}'.split(' ')[0],
+                    _selectedDate == null
+                        ? 'Fecha'
+                        : 'Fecha: ${_selectedDate!.toLocal()}'.split(' ')[0],
                   ),
                 ),
                 ElevatedButton(
                   onPressed: () async {
                     final date = await showDatePicker(
                       context: context,
-                      initialDate: _startDate ?? DateTime.now(),
+                      initialDate: _selectedDate ?? DateTime.now(),
                       firstDate: DateTime(2000),
                       lastDate: DateTime(2100),
                     );
-                    if (date != null) setState(() => _startDate = date);
+                    if (date != null) setState(() => _selectedDate = date);
                   },
-                  child: const Text('Seleccionar'),
+                  child: const Text('Seleccionar fecha'),
                 ),
               ],
             ),
             const SizedBox(height: 8),
+
             Row(
               children: [
                 Expanded(
                   child: Text(
-                    _endDate == null
-                        ? 'Fecha de fin'
-                        : 'Fin: ${_endDate!.toLocal()}'.split(' ')[0],
+                    _selectedTime == null
+                        ? 'Hora'
+                        : 'Hora: ${_selectedTime!.format(context)}',
                   ),
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    final date = await showDatePicker(
+                    final time = await showTimePicker(
                       context: context,
-                      initialDate: _endDate ?? DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2100),
+                      initialTime: _selectedTime ?? TimeOfDay.now(),
                     );
-                    if (date != null) setState(() => _endDate = date);
+                    if (time != null) setState(() => _selectedTime = time);
                   },
-                  child: const Text('Seleccionar'),
+                  child: const Text('Seleccionar hora'),
                 ),
               ],
             ),
             const SizedBox(height: 18),
+
             ElevatedButton(
               onPressed: () async {
                 if (_titleController.text.isEmpty ||
                     _descController.text.isEmpty ||
-                    _startDate == null ||
-                    _endDate == null) {
+                    _selectedDate == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Complete todos los campos y fechas'),
+                      content: Text(
+                        'Completa título, descripción y fecha/hora',
+                      ),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+
+                final eventDateTime = _composeDateTime();
+                if (eventDateTime == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Selecciona fecha y hora válidas'),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -120,101 +144,79 @@ class _EventFormScreenState extends State<EventFormScreen> {
                 }
 
                 try {
-                  final notificationProvider =
-                      Provider.of<NotificationProvider>(context, listen: false);
+                  final notifier = Provider.of<NotificationProvider>(
+                    context,
+                    listen: false,
+                  );
+                  final uuid = const Uuid();
 
                   if (widget.event == null) {
                     // Crear nuevo evento
-                    final newEventId = const Uuid().v4();
+                    final newEventId = uuid.v4();
+
                     await dataProvider.addEvent(
                       uid,
                       _titleController.text,
                       _descController.text,
-                      _startDate!,
-                      _endDate!,
+                      eventDateTime,
+                      eventDateTime,
                     );
 
-                    // Mostrar notificación inmediata
-                    await notificationProvider.showInstantNotification(
-                      id: DateTime.now().millisecond,
-                      title: '📅 Evento creado',
-                      body: '${_titleController.text} fue creado exitosamente',
+                    // ⭐ NOTIFICACIÓN EXCLUSIVA DE EVENTO
+                    await notifier.scheduleEventNotification(
+                      id: newEventId.hashCode,
+                      title: '📅 Evento próximo',
+                      body: _titleController.text,
+                      scheduledAt: eventDateTime,
+                      payload: newEventId,
                     );
 
-                    // Programar notificación para cuando inicie el evento
-                    if (_startDate!.isAfter(DateTime.now())) {
-                      try {
-                        await notificationProvider.scheduleNotification(
-                          id: newEventId.hashCode,
-                          title: '🔔 Evento: ${_titleController.text}',
-                          body: 'Tu evento está comenzando ahora',
-                          scheduledAt: _startDate!,
-                          payload: newEventId,
-                        );
-                      } catch (e) {
-                        print(
-                          'Advertencia: No se pudo programar notificación del evento: $e',
-                        );
-                      }
-                    }
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Evento creado'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
                   } else {
-                    // Editar evento existente
                     final updatedEvent = widget.event!.copyWith(
                       title: _titleController.text,
                       description: _descController.text,
-                      startDate: _startDate,
-                      endDate: _endDate,
+                      startDate: eventDateTime,
+                      endDate: eventDateTime,
                     );
+
                     await dataProvider.updateEvent(updatedEvent);
 
-                    // Mostrar notificación inmediata
-                    await notificationProvider.showInstantNotification(
-                      id: DateTime.now().millisecond,
-                      title: '✏️ Evento actualizado',
-                      body: '${_titleController.text} fue actualizado',
+                    // Cancelar notificación anterior
+                    await notifier.cancelNotification(
+                      widget.event!.id.hashCode,
                     );
 
-                    // Reprogramar notificación
-                    try {
-                      await notificationProvider.cancelNotification(
-                        widget.event!.id.hashCode,
-                      );
-                      if (_startDate!.isAfter(DateTime.now())) {
-                        await notificationProvider.scheduleNotification(
-                          id: updatedEvent.id.hashCode,
-                          title: '🔔 Evento: ${_titleController.text}',
-                          body: 'Tu evento está comenzando ahora',
-                          scheduledAt: _startDate!,
-                          payload: updatedEvent.id,
-                        );
-                      }
-                    } catch (e) {
-                      print(
-                        'Advertencia: No se pudo reprogramar notificación del evento: $e',
-                      );
-                    }
-                  }
+                    // Crear nueva
+                    await notifier.scheduleEventNotification(
+                      id: updatedEvent.id.hashCode,
+                      title: '📅 Evento próximo',
+                      body: _titleController.text,
+                      scheduledAt: eventDateTime,
+                      payload: updatedEvent.id,
+                    );
 
-                  if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Evento guardado correctamente'),
+                        content: Text('Evento actualizado'),
                         backgroundColor: Colors.green,
-                        duration: Duration(seconds: 2),
                       ),
                     );
+                  }
 
-                    Navigator.pop(context, true);
-                  }
+                  Navigator.pop(context, true);
                 } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Error al guardar: $e'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error al guardar: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
                 }
               },
               child: const Text('Guardar'),

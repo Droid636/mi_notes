@@ -1,3 +1,4 @@
+// lib/screens/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../helpers/providers/auth_provider.dart';
@@ -28,18 +29,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final authProvider = context.read<AuthProvider>();
 
-    // ⬅️ Agregado: envuelve todo para mantener la sesión
     return StreamBuilder(
       stream: authProvider.authState,
       builder: (context, snapshot) {
-        // Esperando datos del usuario
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        // No hay usuario → login
         if (!snapshot.hasData) {
           Future.microtask(() {
             Navigator.pushReplacementNamed(context, '/login');
@@ -47,10 +45,9 @@ class _HomeScreenState extends State<HomeScreen> {
           return const Scaffold();
         }
 
-        final uid = snapshot.data!.uid; // ⬅️ Reemplaza el .currentUser!.uid
+        final uid = snapshot.data!.uid;
         final dataProvider = context.watch<DataProvider>();
 
-        // 🔽 TU CÓDIGO ORIGINAL DESDE AQUÍ 🔽
         return Scaffold(
           appBar: AppBar(
             title: Text(
@@ -116,24 +113,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Notas
+  // Notes (pinned on top)
   Widget _buildNotes(String uid, DataProvider dataProvider) {
     return StreamBuilder<List<NoteModel>>(
       stream: dataProvider.getNotes(uid),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (!snapshot.hasData)
           return const Center(child: CircularProgressIndicator());
-        }
-
         final notes = snapshot.data!;
-        if (notes.isEmpty) {
-          return const Center(child: Text('No hay notas'));
-        }
+        if (notes.isEmpty) return const Center(child: Text('No hay notas'));
 
-        // 🔥 ORDENAR: fijadas arriba, luego normales
         notes.sort((a, b) {
           if (a.pinned == b.pinned) {
-            // Orden por fecha (más nuevas arriba)
             return b.createdAt.compareTo(a.createdAt);
           }
           return a.pinned ? -1 : 1;
@@ -150,14 +141,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Eventos
+  // Events (separated from reminders; each event can create its own reminder stored in reminders collection)
   Widget _buildEvents(String uid, DataProvider dataProvider) {
     return StreamBuilder<List<EventModel>>(
       stream: dataProvider.getEvents(uid),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (!snapshot.hasData)
           return const Center(child: CircularProgressIndicator());
-        }
         final events = snapshot.data!;
         if (events.isEmpty) return const Center(child: Text('No hay eventos'));
         return ListView.builder(
@@ -171,18 +161,16 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  //Recordatorios
+  // Reminders (from 'reminders' collection — not mixed with events)
   Widget _buildReminders(String uid, DataProvider dataProvider) {
     return StreamBuilder<List<ReminderModel>>(
       stream: dataProvider.getReminders(uid),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (!snapshot.hasData)
           return const Center(child: CircularProgressIndicator());
-        }
         final reminders = snapshot.data!;
-        if (reminders.isEmpty) {
+        if (reminders.isEmpty)
           return const Center(child: Text('No hay recordatorios'));
-        }
         return ListView.builder(
           itemCount: reminders.length,
           itemBuilder: (context, index) {
@@ -197,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Modales de detalle y acciones
+  // The modals below call DataProvider and NotificationProvider; unchanged otherwise
   Future<void> _showNoteModal(NoteModel note) async {
     final dataProvider = context.read<DataProvider>();
     final notificationProvider = context.read<NotificationProvider>();
@@ -208,26 +196,21 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text(note.title),
         content: SingleChildScrollView(child: Text(note.content)),
         actions: [
-          // ⭐⭐⭐ AGREGADO: Fijar / Desfijar ⭐⭐⭐
           TextButton(
             onPressed: () async {
               final updated = note.copyWith(pinned: !note.pinned);
               await dataProvider.updateNote(updated);
-
               Navigator.pop(context);
-
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
                     updated.pinned ? 'Nota fijada' : 'Nota desfijada',
                   ),
-                  duration: const Duration(seconds: 2),
                 ),
               );
             },
             child: Text(note.pinned ? 'Desfijar' : 'Fijar'),
           ),
-
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cerrar'),
@@ -266,10 +249,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               );
-
               if (confirmed ?? false) {
                 await dataProvider.deleteNote(note.id);
-
                 try {
                   await notificationProvider.showInstantNotification(
                     id: DateTime.now().millisecond,
@@ -277,17 +258,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     body: 'Se eliminó "${note.title}"',
                   );
                 } catch (_) {}
-
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Nota eliminada'),
                       backgroundColor: Colors.red,
-                      duration: Duration(seconds: 2),
                     ),
                   );
                 }
-
                 setState(() {});
                 Navigator.pop(context);
               }
@@ -382,7 +360,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SnackBar(
                       content: Text('Evento eliminado'),
                       backgroundColor: Colors.red,
-                      duration: Duration(seconds: 2),
                     ),
                   );
                 }
@@ -473,7 +450,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SnackBar(
                       content: Text('Recordatorio eliminado'),
                       backgroundColor: Colors.red,
-                      duration: Duration(seconds: 2),
                     ),
                   );
                 }
