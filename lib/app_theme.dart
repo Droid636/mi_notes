@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 // Tema de la aplicación
 class AppTheme {
-  // 🎨 Nueva paleta de colores (suave y moderna)
   static const Color _primaryColor = Color(0xFF6C63FF); // Violeta moderno
   static const Color _accentColor = Color(0xFF5ECFFF); // Azul pastel suave
   static const Color _errorColor = Color(0xFFE74C3C); // Rojo elegante

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // 👈 Import necesario para formatear la fecha
+import 'package:intl/intl.dart';
 import '../models/reminder_model.dart';
 
 class ReminderTile extends StatelessWidget {
@@ -16,7 +16,6 @@ class ReminderTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 👇 Formato bonito de fecha y hora en español (ej: 13 nov 2025, 10:30 p. m.)
     final formattedDate = DateFormat(
       'd MMM yyyy, hh:mm a',
       'es_MX',

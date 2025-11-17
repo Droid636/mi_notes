@@ -35,16 +35,16 @@ class NotificationProvider with ChangeNotifier {
   final FlutterLocalNotificationsPlugin _fln =
       FlutterLocalNotificationsPlugin();
 
-  // ⭐ Canal de recordatorios
+  //  Canal de recordatorios
   static const AndroidNotificationChannel _defaultChannel =
       AndroidNotificationChannel(
         'mi_notes_channel',
         'MiNotes Recordatorios',
-        description: 'Canal para recordatorios de notas y tareas',
+        description: 'Canal para recordatorios',
         importance: Importance.high,
       );
 
-  // ⭐ CANAL NUEVO PARA EVENTOS
+  //  CANAL NUEVO PARA EVENTOS
   static const AndroidNotificationChannel eventChannel =
       AndroidNotificationChannel(
         'event_channel',
@@ -72,7 +72,6 @@ class NotificationProvider with ChangeNotifier {
 
       await _fln.initialize(settings);
 
-      // ⭐ Crear ambos canales
       final android = _fln
           .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin
@@ -104,7 +103,7 @@ class NotificationProvider with ChangeNotifier {
     }
   }
 
-  /// Notificación inmediata (recordatorios)
+  /// Notificación inmediata
   Future<void> showInstantNotification({
     required int id,
     required String title,
@@ -130,7 +129,7 @@ class NotificationProvider with ChangeNotifier {
     );
   }
 
-  /// ⭐ NOTIFICACIÓN PROGRAMADA PARA RECORDATORIOS
+  // Notificacion Push
   Future<void> scheduleNotification({
     required int id,
     required String title,
@@ -161,7 +160,7 @@ class NotificationProvider with ChangeNotifier {
     );
   }
 
-  /// ⭐⭐ NUEVO: NOTIFICACIONES EXCLUSIVAS PARA EVENTOS
+  /// Notificaciones de eventos
   Future<void> scheduleEventNotification({
     required int id,
     required String title,
@@ -172,7 +171,7 @@ class NotificationProvider with ChangeNotifier {
     final scheduledTz = tz.TZDateTime.from(scheduledAt, tz.local);
 
     final androidDetails = AndroidNotificationDetails(
-      eventChannel.id, // ⭐ CANAL NUEVO
+      eventChannel.id,
       eventChannel.name,
       channelDescription: eventChannel.description,
       importance: Importance.high,

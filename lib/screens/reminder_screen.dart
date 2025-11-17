@@ -110,7 +110,6 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
                       Provider.of<NotificationProvider>(context, listen: false);
 
                   if (widget.reminder == null) {
-                    // Crear nuevo recordatorio
                     final newReminder = ReminderModel(
                       id: const Uuid().v4(),
                       uid: uid,
@@ -129,8 +128,6 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
                           'Se programó "${_titleController.text}" para ${_scheduledAt!.toString().split('.')[0]}',
                     );
 
-                    // Intentar programar notificación para la fecha/hora seleccionada
-                    // (pero si falla, no detiene el guardado del recordatorio)
                     if (_scheduledAt!.isAfter(DateTime.now())) {
                       try {
                         await notificationProvider.scheduleNotification(
@@ -144,18 +141,15 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
                         print(
                           'Advertencia: No se pudo programar la notificación: $e',
                         );
-                        // No lanzamos la excepción, solo registramos el error
                       }
                     }
                   } else {
-                    // Editar recordatorio existente
                     final updatedReminder = widget.reminder!.copyWith(
                       title: _titleController.text,
                       scheduledAt: _scheduledAt,
                     );
                     await dataProvider.updateReminder(updatedReminder);
 
-                    // Mostrar notificación de actualización
                     await notificationProvider.showInstantNotification(
                       id: DateTime.now().millisecond,
                       title: '✏️ Recordatorio actualizado',
@@ -163,7 +157,6 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
                           'Se actualizó para ${_scheduledAt!.toString().split('.')[0]}',
                     );
 
-                    // Intentar reprogramar notificación
                     try {
                       await notificationProvider.cancelNotification(
                         widget.reminder!.id.hashCode,
@@ -181,7 +174,6 @@ class _ReminderFormScreenState extends State<ReminderFormScreen> {
                       print(
                         'Advertencia: No se pudo reprogramar la notificación: $e',
                       );
-                      // No lanzamos la excepción, solo registramos el error
                     }
                   }
 

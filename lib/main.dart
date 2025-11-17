@@ -37,7 +37,7 @@ Future<void> main() async {
     );
   } catch (e) {
     if (e.toString().contains('duplicate-app')) {
-      debugPrint('⚠️ Firebase ya estaba inicializado. Continuando.');
+      debugPrint('⚠️ Firebase ya está inicializado.');
     } else {
       rethrow;
     }
@@ -55,9 +55,7 @@ Future<void> main() async {
       providers: [
         Provider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => DataProvider()),
-        ChangeNotifierProvider(
-          create: (_) => NotificationProvider(),
-        ), // 👈 CORRECTO
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: const MyApp(),
     ),

@@ -19,7 +19,7 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
   late TextEditingController _titleController;
   late TextEditingController _contentController;
 
-  // ⭐ Nuevo: soporte para PINNED
+  // fijar notas
   late bool _pinned;
 
   @override
@@ -29,7 +29,7 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
     _contentController = TextEditingController(
       text: widget.note?.content ?? '',
     );
-    _pinned = widget.note?.pinned ?? false; // ← si es edición, cargar
+    _pinned = widget.note?.pinned ?? false;
   }
 
   @override
@@ -67,9 +67,8 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
 
               const SizedBox(height: 18),
 
-              // ⭐ Switch para Fijar Nota
               SwitchListTile(
-                title: const Text("Fijar nota (pinned)"),
+                title: const Text("Fijar nota"),
                 value: _pinned,
                 onChanged: (val) {
                   setState(() => _pinned = val);
@@ -90,12 +89,11 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                         );
 
                     if (widget.note == null) {
-                      // ⭐ Crear nota con pinned
                       await dataProvider.addNote(
                         uid,
                         _titleController.text,
                         _contentController.text,
-                        pinned: _pinned, // ← lo agregué
+                        pinned: _pinned,
                       );
 
                       await notificationProvider.showInstantNotification(
@@ -105,11 +103,10 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                             '${_titleController.text} se guardó correctamente',
                       );
                     } else {
-                      // ⭐ Actualizar nota con pinned
                       final updatedNote = widget.note!.copyWith(
                         title: _titleController.text,
                         content: _contentController.text,
-                        pinned: _pinned, // ← también lo agregué
+                        pinned: _pinned,
                       );
 
                       await dataProvider.updateNote(updatedNote);

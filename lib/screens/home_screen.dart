@@ -113,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Notes (pinned on top)
+  // Notas fijadas
   Widget _buildNotes(String uid, DataProvider dataProvider) {
     return StreamBuilder<List<NoteModel>>(
       stream: dataProvider.getNotes(uid),
@@ -141,7 +141,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Events (separated from reminders; each event can create its own reminder stored in reminders collection)
   Widget _buildEvents(String uid, DataProvider dataProvider) {
     return StreamBuilder<List<EventModel>>(
       stream: dataProvider.getEvents(uid),
@@ -161,7 +160,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Reminders (from 'reminders' collection — not mixed with events)
   Widget _buildReminders(String uid, DataProvider dataProvider) {
     return StreamBuilder<List<ReminderModel>>(
       stream: dataProvider.getReminders(uid),
@@ -185,7 +183,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // The modals below call DataProvider and NotificationProvider; unchanged otherwise
   Future<void> _showNoteModal(NoteModel note) async {
     final dataProvider = context.read<DataProvider>();
     final notificationProvider = context.read<NotificationProvider>();

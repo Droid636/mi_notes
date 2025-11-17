@@ -162,7 +162,6 @@ class _EventFormScreenState extends State<EventFormScreen> {
                       eventDateTime,
                     );
 
-                    // ⭐ NOTIFICACIÓN EXCLUSIVA DE EVENTO
                     await notifier.scheduleEventNotification(
                       id: newEventId.hashCode,
                       title: '📅 Evento próximo',
@@ -187,12 +186,10 @@ class _EventFormScreenState extends State<EventFormScreen> {
 
                     await dataProvider.updateEvent(updatedEvent);
 
-                    // Cancelar notificación anterior
                     await notifier.cancelNotification(
                       widget.event!.id.hashCode,
                     );
 
-                    // Crear nueva
                     await notifier.scheduleEventNotification(
                       id: updatedEvent.id.hashCode,
                       title: '📅 Evento próximo',

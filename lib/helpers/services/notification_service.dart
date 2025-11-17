@@ -17,7 +17,6 @@ class NotificationService {
     final service = NotificationService._instance;
     service._plugin = FlutterLocalNotificationsPlugin();
 
-    // 🔥 INICIALIZAR TIMEZONE (LO QUE FALTABA)
     tz_data.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('America/Mexico_City'));
 
@@ -68,7 +67,7 @@ class NotificationService {
     }
   }
 
-  /// Solicitar permiso de alarmas exactas
+  // Solicitar permiso de alarmas exactas
   Future<void> requestAlarmsPermission() async {
     final status = await Permission.scheduleExactAlarm.status;
 
@@ -81,7 +80,7 @@ class NotificationService {
     }
   }
 
-  /// Notificación instantánea
+  // Notificación instantánea
   Future<void> showInstantNotification({
     required String title,
     required String body,
@@ -110,7 +109,7 @@ class NotificationService {
     );
   }
 
-  /// Programar notificación futura
+  // Programar notificación futura
   Future<void> scheduleNotification({
     required DateTime scheduledDate,
     required String title,

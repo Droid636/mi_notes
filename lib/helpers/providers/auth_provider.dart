@@ -2,14 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../models/user_model.dart';
 
-// Proveedor para autenticación y gestión de usuarios
+// Autenticacion de usuarios
 
 class AuthProvider {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // 👉 STREAM PARA DETECTAR CAMBIOS DE SESIÓN
-  // Esto permitirá saber si el usuario sigue logueado al abrir la app.
+  //  Validacion para detet car sesion y mantener abierta sin cierre
   Stream<User?> get authState => _auth.authStateChanges();
 
   // Obtener el usuario actual
@@ -40,7 +39,6 @@ class AuthProvider {
             .doc(user.uid)
             .set(userModel.toMap());
 
-        //  Cerrar sesión inmediatamente
         await _auth.signOut();
 
         return userModel;
