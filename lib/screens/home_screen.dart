@@ -118,8 +118,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return StreamBuilder<List<NoteModel>>(
       stream: dataProvider.getNotes(uid),
       builder: (context, snapshot) {
-        if (!snapshot.hasData)
+        if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
+        }
         final notes = snapshot.data!;
         if (notes.isEmpty) return const Center(child: Text('No hay notas'));
 
@@ -145,8 +146,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return StreamBuilder<List<EventModel>>(
       stream: dataProvider.getEvents(uid),
       builder: (context, snapshot) {
-        if (!snapshot.hasData)
+        if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
+        }
         final events = snapshot.data!;
         if (events.isEmpty) return const Center(child: Text('No hay eventos'));
         return ListView.builder(
@@ -164,11 +166,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return StreamBuilder<List<ReminderModel>>(
       stream: dataProvider.getReminders(uid),
       builder: (context, snapshot) {
-        if (!snapshot.hasData)
+        if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
+        }
         final reminders = snapshot.data!;
-        if (reminders.isEmpty)
+        if (reminders.isEmpty) {
           return const Center(child: Text('No hay recordatorios'));
+        }
         return ListView.builder(
           itemCount: reminders.length,
           itemBuilder: (context, index) {
@@ -193,81 +197,101 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text(note.title),
         content: SingleChildScrollView(child: Text(note.content)),
         actions: [
-          TextButton(
-            onPressed: () async {
-              final updated = note.copyWith(pinned: !note.pinned);
-              await dataProvider.updateNote(updated);
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    updated.pinned ? 'Nota fijada' : 'Nota desfijada',
-                  ),
-                ),
-              );
-            },
-            child: Text(note.pinned ? 'Desfijar' : 'Fijar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => NoteFormScreen(note: note)),
-              );
-            },
-            child: const Text('Editar'),
-          ),
-          TextButton(
-            onPressed: () async {
-              final confirmed = await showDialog<bool>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Eliminar nota'),
-                  content: const Text(
-                    '¿Está seguro de que desea eliminar esta nota?',
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text('Cancelar'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: const Text(
-                        'Eliminar',
-                        style: TextStyle(color: Colors.red),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              /// 🔵 FIJAR / DESFIJAR
+              TextButton(
+                onPressed: () async {
+                  final updated = note.copyWith(pinned: !note.pinned);
+                  await dataProvider.updateNote(updated);
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        updated.pinned ? 'Nota fijada' : 'Nota desfijada',
                       ),
                     ),
-                  ],
-                ),
-              );
-              if (confirmed ?? false) {
-                await dataProvider.deleteNote(note.id);
-                try {
-                  await notificationProvider.showInstantNotification(
-                    id: DateTime.now().millisecond,
-                    title: '🗑️ Nota eliminada',
-                    body: 'Se eliminó "${note.title}"',
                   );
-                } catch (_) {}
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Nota eliminada'),
-                      backgroundColor: Colors.red,
+                },
+                child: Text(note.pinned ? 'Desfijar' : 'Fijar'),
+              ),
+
+              /// 🔵 CERRAR
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cerrar'),
+              ),
+
+              /// 🔵 EDITAR
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => NoteFormScreen(note: note),
                     ),
                   );
-                }
-                setState(() {});
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+                },
+                child: const Text('Editar'),
+              ),
+
+              /// 🔴 ELIMINAR
+              TextButton(
+                onPressed: () async {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Eliminar nota'),
+                      content: const Text(
+                        '¿Está seguro de que desea eliminar esta nota?',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Cancelar'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text(
+                            'Eliminar',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirmed ?? false) {
+                    await dataProvider.deleteNote(note.id);
+
+                    try {
+                      await notificationProvider.showInstantNotification(
+                        id: DateTime.now().millisecond,
+                        title: '🗑️ Nota eliminada',
+                        body: 'Se eliminó "${note.title}"',
+                      );
+                    } catch (_) {}
+
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Nota eliminada'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                    setState(() {});
+                    Navigator.pop(context);
+                  }
+                },
+                child: const Text(
+                  'Eliminar',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -288,8 +312,9 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Text(event.description),
               const SizedBox(height: 12),
-              Text('Inicio: ${formatDateTime(event.startDate)}'),
-              Text('Fin: ${formatDateTime(event.endDate)}'),
+
+              /// SOLO mostrar fecha y hora del evento (sin inicio/fin)
+              Text('Fecha y hora: ${formatDateTime(event.startDate)}'),
             ],
           ),
         ),
